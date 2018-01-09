@@ -24,11 +24,13 @@ export default class TimerComponent extends Component {
             totalDuration: 90000,
             timerReset: false,
             stopwatchReset: false,
+            realTime: ''
         };
         this.toggleTimer = this.toggleTimer.bind(this);
         this.resetTimer = this.resetTimer.bind(this);
         this.toggleStopwatch = this.toggleStopwatch.bind(this);
         this.resetStopwatch = this.resetStopwatch.bind(this);
+        this.getTick = this.getTick.bind(this)
     }
 
     toggleTimer() {
@@ -48,17 +50,25 @@ export default class TimerComponent extends Component {
 
     }
 
-    getFormattedTime(time) {
-        this.currentTime = time;
+    getFormattedTime = (time) => {
+        this.getTick(time)
     };
+
+    getTick() {
+        console.log('hit')
+        this.setState({ realTime: time }, function () {
+
+        })
+        console.log(this.state.realTime)
+    }
 
     render() {
         return (
             <View>
-                <Stopwatch laps msecs start={this.state.stopwatchStart}
+                <Stopwatch laps={true} msecs start={this.state.stopwatchStart}
                     reset={this.state.stopwatchReset}
                     options={options}
-                    getTime={this.getFormattedTime} />
+                    getTime={(time) => this.getFormattedTime(time)} />
 
                 <Button block onPress={this.toggleStopwatch}>
                     {/* <Icon name='start' /> */}
@@ -67,6 +77,10 @@ export default class TimerComponent extends Component {
                 <Button block onPress={this.resetStopwatch}>
                     {/* <Icon name='start' /> */}
                     <Text>Reset</Text>
+                </Button>
+                <Button block onPress={this.getTick}>
+                    {/* <Icon name='start' /> */}
+                    <Text>Tick?</Text>
                 </Button>
 
 
