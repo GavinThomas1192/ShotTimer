@@ -13,10 +13,12 @@ import { Button, Container, Content } from 'native-base'
 import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 
 
+
 export default class TimerComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
+
             timerStart: false,
             stopwatchStart: false,
             totalDuration: 90000,
@@ -43,6 +45,7 @@ export default class TimerComponent extends Component {
 
     resetStopwatch() {
         this.setState({ stopwatchStart: false, stopwatchReset: true });
+
     }
 
     getFormattedTime(time) {
@@ -100,5 +103,6 @@ const options = {
         fontSize: 30,
         color: '#FFF',
         marginLeft: 7,
+
     }
 };
