@@ -6,7 +6,7 @@ import {
     View
 } from 'react-native';
 import { Button, Icon, Container, Content } from 'native-base'
-import Timer from '../Components/timer'
+import TimerComponent from '../Components/timer'
 import styles from './Styles/app_style'
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' +
@@ -21,7 +21,7 @@ export default class App extends Component {
         return (
             <Container style={styles.container}>
                 <Content>
-                    <Timer />
+                    <TimerComponent />
 
                 </Content>
             </Container>
