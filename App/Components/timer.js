@@ -56,23 +56,32 @@ export default class TimerComponent extends Component {
                     reset={this.state.stopwatchReset}
                     options={options}
                     getTime={this.getFormattedTime} />
-                <TouchableHighlight onPress={this.toggleStopwatch}>
-                    <Text style={{ fontSize: 30, color: "white" }}>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.resetStopwatch}>
-                    <Text style={{ fontSize: 30, color: "white" }}>Reset</Text>
-                </TouchableHighlight>
+
+                <Button block onPress={this.toggleStopwatch}>
+                    {/* <Icon name='start' /> */}
+                    <Text>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
+                </Button>
+                <Button block onPress={this.resetStopwatch}>
+                    {/* <Icon name='start' /> */}
+                    <Text>Reset</Text>
+                </Button>
+
+
                 <Timer totalDuration={this.state.totalDuration} msecs start={this.state.timerStart}
                     reset={this.state.timerReset}
                     options={options}
                     handleFinish={handleTimerComplete}
                     getTime={this.getFormattedTime} />
-                <TouchableHighlight onPress={this.toggleTimer}>
-                    <Text style={{ fontSize: 30, color: "white" }}>{!this.state.timerStart ? "Start" : "Stop"}</Text>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.resetTimer}>
-                    <Text style={{ fontSize: 30, color: "white" }}>Reset</Text>
-                </TouchableHighlight>
+
+
+                <Button block onPress={this.toggleTimer}>
+                    {/* <Icon name='start' /> */}
+                    <Text>{!this.state.timerStart ? "Start" : "Stop"}</Text>
+                </Button>
+                <Button block onPress={this.resetTimer}>
+                    {/* <Icon name='start' /> */}
+                    <Text>Reset</Text>
+                </Button>
             </View>
         );
     }
