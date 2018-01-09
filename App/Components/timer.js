@@ -9,66 +9,38 @@ import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
 import moment from "moment";
 import { Button, Container, Content } from 'native-base'
+import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
+
 
 
 export default class Timer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            secondCounter: 0,
-            millisecond: 0,
+            currentTime: '',
             time: '',
+            timeAtButtonClick: '',
             date: moment().format("LL"),
             toggleStartStop: false,
             buttonText: '',
         };
         this.toggleStartStop = this.toggleStartStop.bind(this)
-        this.stopWatch = this.stopWatch.bind(this)
     }
 
     componentDidUpdate() {
-        {
-            this.state.toggleStartStop ?
-                // setTimeout(() => {
-                //     this.setState({
-                //         time: moment().minute(0).second(this.state.secondCounter++).millisecond(0).format('mm : ss : SS'),
-                //         date: moment().format("LL")
-                //     });
-                // }, 1000) :
-                this.stopWatch() :
-                undefined
-        }
+        this.stopWatch()
     }
 
-
-
     componentDidMount() {
-        this.setState({ time: moment().minute(0).second(this.state.secondCounter).millisecond(this.state.millisecond).format('mm : ss : SS') })
+        this.setState({ time: moment().hour(0).minute(0).second(0).format('HH : mm : ss'), timeAtButtonClick: moment().hour(0).minute(0).second(0).format('HH : mm : ss') })
     }
 
     stopWatch() {
-        setTimeout(() => {
-            this.setState({
-                time: moment().minute(0).second(this.state.secondCounter++).millisecond(this.state.millisecond).format('mm : ss : SS'),
-            });
-        }, 1000)
-
-        setTimeout(() => {
-            this.setState({
-                time: moment().minute(0).second(this.state.secondCounter).millisecond(this.state.millisecond++).format('mm : ss : SS'),
-            });
-        }, 10000)
+        this.setState({ time: moment().format("mm : ss : SSS") })
     }
     toggleStartStop() {
-        // console.log('hi')
-        this.setState({ toggleStartStop: !this.state.toggleStartStop }, function () {
-            // setTimeout(() => {
-            //     this.setState({
-            //         // time: moment().format("LTS"),
-            //         secondCounter: this.state.secondCounter++,
-            //         date: moment().format("LL")
-            //     });
-            // }, 1000);
+        this.setState({ toggleStartStop: !this.state.toggleStartStop, timeAtButtonClick: moment().format("mm : ss : SSS") }, function () {
+
         });
     }
 
@@ -80,6 +52,11 @@ export default class Timer extends Component {
                     <StatusBar style={{ backgroundColor: 'transparent' }} />
                     <Text style={styles.timeText}>
                         {this.state.time}
+
+                    </Text>
+                    <Text style={styles.timeText}>
+                        {this.state.timeAtButtonClick}
+
                     </Text>
                     <Text style={styles.dateText}>
                         {this.state.date}
