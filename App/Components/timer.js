@@ -4,93 +4,92 @@ import {
     Text,
     StyleSheet,
     StatusBar,
+    TouchableHighlight
 } from "react-native";
 import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
 import moment from "moment";
 import { Button, Container, Content } from 'native-base'
+import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 
 
-export default class Timer extends Component {
+export default class TimerComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            secondCounter: 0,
-            millisecond: 0,
-            time: '',
-            date: moment().format("LL"),
-            toggleStartStop: false,
-            buttonText: '',
+            timerStart: false,
+            stopwatchStart: false,
+            totalDuration: 90000,
+            timerReset: false,
+            stopwatchReset: false,
         };
-        this.toggleStartStop = this.toggleStartStop.bind(this)
-        this.stopWatch = this.stopWatch.bind(this)
+        this.toggleTimer = this.toggleTimer.bind(this);
+        this.resetTimer = this.resetTimer.bind(this);
+        this.toggleStopwatch = this.toggleStopwatch.bind(this);
+        this.resetStopwatch = this.resetStopwatch.bind(this);
     }
 
-    componentDidUpdate() {
-        {
-            this.state.toggleStartStop ?
-                // setTimeout(() => {
-                //     this.setState({
-                //         time: moment().minute(0).second(this.state.secondCounter++).millisecond(0).format('mm : ss : SS'),
-                //         date: moment().format("LL")
-                //     });
-                // }, 1000) :
-                this.stopWatch() :
-                undefined
-        }
+    toggleTimer() {
+        this.setState({ timerStart: !this.state.timerStart, timerReset: false });
     }
 
-
-
-    componentDidMount() {
-        this.setState({ time: moment().minute(0).second(this.state.secondCounter).millisecond(this.state.millisecond).format('mm : ss : SS') })
+    resetTimer() {
+        this.setState({ timerStart: false, timerReset: true });
     }
 
-    stopWatch() {
-        setTimeout(() => {
-            this.setState({
-                time: moment().minute(0).second(this.state.secondCounter++).millisecond(this.state.millisecond).format('mm : ss : SS'),
-            });
-        }, 1000)
+    toggleStopwatch() {
+        this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
+    }
 
-        setTimeout(() => {
-            this.setState({
-                time: moment().minute(0).second(this.state.secondCounter).millisecond(this.state.millisecond++).format('mm : ss : SS'),
-            });
-        }, 10000)
+    resetStopwatch() {
+        this.setState({ stopwatchStart: false, stopwatchReset: true });
     }
-    toggleStartStop() {
-        // console.log('hi')
-        this.setState({ toggleStartStop: !this.state.toggleStartStop }, function () {
-            // setTimeout(() => {
-            //     this.setState({
-            //         // time: moment().format("LTS"),
-            //         secondCounter: this.state.secondCounter++,
-            //         date: moment().format("LL")
-            //     });
-            // }, 1000);
-        });
-    }
+
+    getFormattedTime(time) {
+        this.currentTime = time;
+    };
 
     render() {
         return (
-            <Container style={styles.container}>
-                <Content>
-
-                    <StatusBar style={{ backgroundColor: 'transparent' }} />
-                    <Text style={styles.timeText}>
-                        {this.state.time}
-                    </Text>
-                    <Text style={styles.dateText}>
-                        {this.state.date}
-                    </Text>
-                    <Button block onPress={this.toggleStartStop}>
-                        {/* <Icon name='start' /> */}
-                        <Text>{this.state.toggleStartStop ? 'Stop timer' : 'Start Timer'}</Text>
-                    </Button>
-                    <KeepAwake />
-                </Content>
-            </Container>
-        )
+            <View>
+                <Stopwatch laps msecs start={this.state.stopwatchStart}
+                    reset={this.state.stopwatchReset}
+                    options={options}
+                    getTime={this.getFormattedTime} />
+                <TouchableHighlight onPress={this.toggleStopwatch}>
+                    <Text style={{ fontSize: 30, color: "white" }}>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this.resetStopwatch}>
+                    <Text style={{ fontSize: 30, color: "white" }}>Reset</Text>
+                </TouchableHighlight>
+                <Timer totalDuration={this.state.totalDuration} msecs start={this.state.timerStart}
+                    reset={this.state.timerReset}
+                    options={options}
+                    handleFinish={handleTimerComplete}
+                    getTime={this.getFormattedTime} />
+                <TouchableHighlight onPress={this.toggleTimer}>
+                    <Text style={{ fontSize: 30, color: "white" }}>{!this.state.timerStart ? "Start" : "Stop"}</Text>
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this.resetTimer}>
+                    <Text style={{ fontSize: 30, color: "white" }}>Reset</Text>
+                </TouchableHighlight>
+            </View>
+        );
     }
 }
+
+const handleTimerComplete = () => alert("custom completion function");
+
+const options = {
+    container: {
+        backgroundColor: '#000',
+        padding: 5,
+        borderRadius: 5,
+        width: 220,
+    },
+    text: {
+        fontSize: 30,
+        color: '#FFF',
+        marginLeft: 7,
+    }
+};
