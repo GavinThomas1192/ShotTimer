@@ -22,10 +22,7 @@ export default class App extends Component {
             <Container style={styles.container}>
                 <Content>
                     <Timer />
-                    <Button block >
-                        {/* <Icon name='start' /> */}
-                        <Text>Start timer</Text>
-                    </Button>
+
                 </Content>
             </Container>
         );
