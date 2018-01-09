@@ -54,12 +54,11 @@ export default class TimerComponent extends Component {
         this.getTick(time)
     };
 
-    getTick() {
-        console.log('hit')
+    getTick(time) {
         this.setState({ realTime: time }, function () {
+            console.log(this.state.realTime)
 
         })
-        console.log(this.state.realTime)
     }
 
     render() {
@@ -68,7 +67,7 @@ export default class TimerComponent extends Component {
                 <Stopwatch laps={true} msecs start={this.state.stopwatchStart}
                     reset={this.state.stopwatchReset}
                     options={options}
-                    getTime={(time) => this.getFormattedTime(time)} />
+                    getTime={this.getFormattedTime} />
 
                 <Button block onPress={this.toggleStopwatch}>
                     {/* <Icon name='start' /> */}
