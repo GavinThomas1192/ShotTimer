@@ -6,14 +6,16 @@ export default StyleSheet.create({
 
 
     container: {
-        flex: 1,
+        marginTop: 60,
+        // marginVertical: Metrics.baseMargin,
+        // flex: 1,
         backgroundColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
     },
     timeText: {
         color: '#999999',
-        fontSize: 75,
+        fontSize: 50,
     },
     dateText: {
         color: '#999999',
