@@ -24,7 +24,7 @@ export default class TimerComponent extends Component {
             totalDuration: 90000,
             timerReset: false,
             stopwatchReset: false,
-            realTime: ''
+            tickTime: '',
         };
         this.toggleTimer = this.toggleTimer.bind(this);
         this.resetTimer = this.resetTimer.bind(this);
@@ -52,16 +52,19 @@ export default class TimerComponent extends Component {
 
     getFormattedTime = (time) => {
         this.currentTime = time;
-        console.log(time)
-        { !this.state.stopwatchStart ? console.log('paused time?', time) : undefined }
+        // console.log(time)
+        // { !this.state.stopwatchStart ? console.log('paused time?', time) : console.log(time) }
+        // { !this.state.stopwatchStart ? this.tickedtime = time : console.log(time) }
     };
 
 
 
     getTick() {
         this.toggleStopwatch()
-        setTimeout(() => { this.toggleStopwatch() }, 100);
-
+        console.log('THIS.CURRENTTIME', this.currentTime)
+        this.setState({ tickTime: this.currentTime })
+        setTimeout(() => { this.toggleStopwatch() }, 10);
+        console.log('STATE', this.state)
     }
 
     render() {
