@@ -24,7 +24,7 @@ export default class TimerComponent extends Component {
             totalDuration: 90000,
             timerReset: false,
             stopwatchReset: false,
-            tickTime: '',
+            tickTimes: [],
         };
         this.toggleTimer = this.toggleTimer.bind(this);
         this.resetTimer = this.resetTimer.bind(this);
@@ -62,9 +62,11 @@ export default class TimerComponent extends Component {
     getTick() {
         this.toggleStopwatch()
         console.log('THIS.CURRENTTIME', this.currentTime)
-        this.setState({ tickTime: this.currentTime })
+        // this.setState({ tickTime: this.currentTime })
+        this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] })
         setTimeout(() => { this.toggleStopwatch() }, 10);
         console.log('STATE', this.state)
+
     }
 
     render() {
