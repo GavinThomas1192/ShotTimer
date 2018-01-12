@@ -24,11 +24,13 @@ export default class TimerComponent extends Component {
             totalDuration: 90000,
             timerReset: false,
             stopwatchReset: false,
+            tickTimes: [],
         };
         this.toggleTimer = this.toggleTimer.bind(this);
         this.resetTimer = this.resetTimer.bind(this);
         this.toggleStopwatch = this.toggleStopwatch.bind(this);
         this.resetStopwatch = this.resetStopwatch.bind(this);
+        this.getTick = this.getTick.bind(this)
     }
 
     toggleTimer() {
@@ -48,9 +50,24 @@ export default class TimerComponent extends Component {
 
     }
 
-    getFormattedTime(time) {
+    getFormattedTime = (time) => {
         this.currentTime = time;
+        // console.log(time)
+        // { !this.state.stopwatchStart ? console.log('paused time?', time) : console.log(time) }
+        // { !this.state.stopwatchStart ? this.tickedtime = time : console.log(time) }
     };
+
+
+
+    getTick() {
+        this.toggleStopwatch()
+        console.log('THIS.CURRENTTIME', this.currentTime)
+        // this.setState({ tickTime: this.currentTime })
+        this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] })
+        setTimeout(() => { this.toggleStopwatch() }, 10);
+        console.log('STATE', this.state)
+
+    }
 
     render() {
         return (
@@ -58,7 +75,7 @@ export default class TimerComponent extends Component {
                 <Stopwatch laps msecs start={this.state.stopwatchStart}
                     reset={this.state.stopwatchReset}
                     options={options}
-                    getTime={this.getFormattedTime} />
+                    getTime={(time) => this.getFormattedTime(time)} />
 
                 <Button block onPress={this.toggleStopwatch}>
                     {/* <Icon name='start' /> */}
@@ -68,23 +85,12 @@ export default class TimerComponent extends Component {
                     {/* <Icon name='start' /> */}
                     <Text>Reset</Text>
                 </Button>
-
-
-                <Timer totalDuration={this.state.totalDuration} msecs start={this.state.timerStart}
-                    reset={this.state.timerReset}
-                    options={options}
-                    handleFinish={handleTimerComplete}
-                    getTime={this.getFormattedTime} />
-
-
-                <Button block onPress={this.toggleTimer}>
+                <Button block onPress={this.getTick}>
                     {/* <Icon name='start' /> */}
-                    <Text>{!this.state.timerStart ? "Start" : "Stop"}</Text>
+                    <Text>Tick?</Text>
                 </Button>
-                <Button block onPress={this.resetTimer}>
-                    {/* <Icon name='start' /> */}
-                    <Text>Reset</Text>
-                </Button>
+
+
             </View>
         );
     }
