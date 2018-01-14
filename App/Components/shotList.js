@@ -55,6 +55,7 @@ export default class ShotList extends Component {
 
     }
     render() {
+
         return (
             <Container>
                 <Content>
@@ -75,6 +76,18 @@ export default class ShotList extends Component {
                                 <Text>{ele + " Seconds"}</Text>
                             </ListItem>
 
+                        })}
+
+                    </List>
+                    <Text style={styles.timeText}> Result List!</Text>
+                    <List>
+                        {this.props.tickTimes.map((ele, index) => {
+                            { this.state.difference[index] !== undefined ? dynamicLastText = this.state.difference[index] + " Seconds" : dynamicLastText = "No last shot" }
+                            // dynamicLastShotText = {this.state.difference[index] !== undefined ? this.state.difference[index] : "No last shot"}
+                            return <ListItem style={styles.timeText}>
+                                <Text>{index + ") " + "Shot " + index + " @ " + ele + ". Difference " + dynamicLastText}</Text>
+                                {/* <Text>{this.props.tickTimes[index]}</Text> */}
+                            </ListItem>
                         })}
 
                     </List>
