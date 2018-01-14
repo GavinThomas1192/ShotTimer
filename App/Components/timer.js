@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
+import ShotList from './shotList'
 import moment from "moment";
 import { Button, Container, Content, List, ListItem } from 'native-base'
 import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
@@ -89,18 +90,12 @@ export default class TimerComponent extends Component {
                     {/* <Icon name='start' /> */}
                     <Text>Tick?</Text>
                 </Button>
-                <Content>
-                    <List>
-                        {this.state.tickTimes.map(ele => {
-                            return <ListItem style={styles.timeText}>
-                                <Text>{ele}</Text>
-                            </ListItem>
-                        })}
 
-                    </List>
-                </Content>
 
-            </View>
+                <ShotList tickTimes={this.state.tickTimes} />
+
+
+            </View >
         );
     }
 }
