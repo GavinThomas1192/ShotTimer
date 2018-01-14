@@ -53,9 +53,7 @@ export default class TimerComponent extends Component {
 
     getFormattedTime = (time) => {
         this.currentTime = time;
-        // console.log(time)
-        // { !this.state.stopwatchStart ? console.log('paused time?', time) : console.log(time) }
-        // { !this.state.stopwatchStart ? this.tickedtime = time : console.log(time) }
+
     };
 
 
@@ -63,9 +61,11 @@ export default class TimerComponent extends Component {
     getTick() {
         this.toggleStopwatch()
         console.log('THIS.CURRENTTIME', this.currentTime)
-        // this.setState({ tickTime: this.currentTime })
-        this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] })
-        setTimeout(() => { this.toggleStopwatch() }, 10);
+        this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] }, function () {
+
+            this.toggleStopwatch()
+        })
+        // setTimeout(() => { this.toggleStopwatch() }, 1);
         console.log('STATE', this.state)
 
     }

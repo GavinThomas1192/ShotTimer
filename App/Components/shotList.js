@@ -30,20 +30,22 @@ export default class ShotList extends Component {
         let unformattedTimes = []
 
         Promise.all(this.props.tickTimes.map(ele => {
+            //remove all the colons from formatted times from npm package
             tempTime = ele.replace(/:/g, '')
-            // console.log('heerrrr', parseInt(ele))
             tempTimes.push(parseInt(tempTime))
+
         })).then(() => {
             this.setState({ formattedTimes: tempTimes })
         }).then(() => {
-
+            let final = '';
+            //get differences from raw numbers
             for (var i = 0; i < this.state.formattedTimes.length; i++) {
                 difference = (this.state.formattedTimes[i + 1] - this.state.formattedTimes[i])
                 console.log('what im looking for', difference)
-                { isNaN(difference) ? undefined : unformattedTimes.push(difference) }
-                // console.log(this.state.formattedTimes[i])
-                // let addedZeros = ("000000" + difference)
-                // console.log('addedzeros', addedZeros)
+                //add back some decimals to be readable on differences
+                final = difference.toString().substring(0, difference.toString().length - 3) + "." + difference.toString().substring(difference.toString().length - 3)
+                { isNaN(final) ? undefined : unformattedTimes.push(final) }
+
             }
         }).then(() => {
             this.setState({ difference: unformattedTimes }, function () {
@@ -53,7 +55,7 @@ export default class ShotList extends Component {
 
     }
     render() {
-        // console.log(this.props)
+
         return (
             <Container>
                 <Content>
@@ -69,8 +71,22 @@ export default class ShotList extends Component {
                     <List>
 
                         {this.state.difference.map(ele => {
+                            console.log(ele, ele.toString().length, typeof ele)
                             return <ListItem style={styles.timeText}>
-                                <Text>{ele}</Text>
+                                <Text>{ele + " Seconds"}</Text>
+                            </ListItem>
+
+                        })}
+
+                    </List>
+                    <Text style={styles.timeText}> Result List!</Text>
+                    <List>
+                        {this.props.tickTimes.map((ele, index) => {
+                            { this.state.difference[index] !== undefined ? dynamicLastText = this.state.difference[index] + " Seconds" : dynamicLastText = "No last shot" }
+                            // dynamicLastShotText = {this.state.difference[index] !== undefined ? this.state.difference[index] : "No last shot"}
+                            return <ListItem style={styles.timeText}>
+                                <Text>{index + ") " + "Shot " + index + " @ " + ele + ". Difference " + dynamicLastText}</Text>
+                                {/* <Text>{this.props.tickTimes[index]}</Text> */}
                             </ListItem>
                         })}
 
