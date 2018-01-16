@@ -12,8 +12,7 @@ import ShotList from './shotList'
 import moment from "moment";
 import { Button, Container, Content, List, ListItem } from 'native-base'
 import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
-
-
+import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
 export default class TimerComponent extends Component {
     constructor(props) {
@@ -32,8 +31,35 @@ export default class TimerComponent extends Component {
         this.toggleStopwatch = this.toggleStopwatch.bind(this);
         this.resetStopwatch = this.resetStopwatch.bind(this);
         this.getTick = this.getTick.bind(this)
+        this.testButton = this.testButton.bind(this)
     }
 
+    componentDidMount() {
+        let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
+
+        AudioRecorder.prepareRecordingAtPath(audioPath, {
+            SampleRate: 22050,
+            Channels: 1,
+            AudioQuality: "Low",
+            AudioEncoding: "aac",
+            MeteringEnabled: true,
+        });
+    }
+
+    // Note you have access to .pause() and .stop()
+
+    testButton() {
+        AudioRecorder.startRecording();
+        AudioRecorder.onProgress = data => {
+            let decibels = Math.floor(data.currentMetering);
+            console.log(
+                currentMetering,
+                currentTime
+            )
+            { data > 0 ? console.log('LOUD DATA', data) : undefined }
+            //DO STUFF
+        };
+    }
     toggleTimer() {
         this.setState({ timerStart: !this.state.timerStart, timerReset: false });
     }
@@ -88,7 +114,11 @@ export default class TimerComponent extends Component {
                 </Button>
                 <Button block onPress={this.getTick}>
                     {/* <Icon name='start' /> */}
-                    <Text>Tick?</Text>
+                    <Text>Tick</Text>
+                </Button>
+                <Button block onPress={this.testButton}>
+                    {/* <Icon name='start' /> */}
+                    <Text>TestingSound</Text>
                 </Button>
 
 
