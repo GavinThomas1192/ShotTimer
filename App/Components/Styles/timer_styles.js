@@ -15,7 +15,7 @@ export default StyleSheet.create({
     },
     timeText: {
         color: '#999999',
-        fontSize: 50,
+        fontSize: 20,
     },
     dateText: {
         color: '#999999',

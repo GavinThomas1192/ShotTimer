@@ -25,6 +25,7 @@ export default class TimerComponent extends Component {
             timerReset: false,
             stopwatchReset: false,
             tickTimes: [],
+            newTicktimes: []
         };
         this.toggleTimer = this.toggleTimer.bind(this);
         this.resetTimer = this.resetTimer.bind(this);
@@ -32,6 +33,7 @@ export default class TimerComponent extends Component {
         this.resetStopwatch = this.resetStopwatch.bind(this);
         this.getTick = this.getTick.bind(this)
         this.testButton = this.testButton.bind(this)
+        this.stopRecording = this.stopRecording.bind(this)
     }
 
     componentDidMount() {
@@ -52,13 +54,25 @@ export default class TimerComponent extends Component {
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
             let decibels = Math.floor(data.currentMetering);
-            console.log(
-                currentMetering,
-                currentTime
-            )
-            { data > 0 ? console.log('LOUD DATA', data) : undefined }
-            //DO STUFF
+            // console.log(
+            //     data.currentMetering,
+            //     data.currentTime
+            // )
+
+            {
+                data.currentMetering > 0 ? this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
+                    console.log(this.state)
+                }) : undefined
+            }
+            // 0.1355978548526764
+
+            // 2.916689395904541
         };
+    }
+
+    stopRecording() {
+        AudioRecorder.stopRecording();
+        console.log('STOPPED, LOOGED THESE TIMES', this.state.newTicktimes)
     }
     toggleTimer() {
         this.setState({ timerStart: !this.state.timerStart, timerReset: false });
@@ -118,11 +132,21 @@ export default class TimerComponent extends Component {
                 </Button>
                 <Button block onPress={this.testButton}>
                     {/* <Icon name='start' /> */}
-                    <Text>TestingSound</Text>
+                    <Text>RECORD</Text>
                 </Button>
-
-
-                <ShotList tickTimes={this.state.tickTimes} />
+                <Button block onPress={this.stopRecording}>
+                    {/* <Icon name='start' /> */}
+                    <Text>STOP</Text>
+                </Button>
+                {/* todo need to format this shotlist to new data */}
+                {this.state.newTicktimes.length > 0 ?
+                    this.state.newTicktimes.map(ele => {
+                        return <Text style={styles.timeText}>
+                            {ele}
+                        </Text>
+                    })
+                    : undefined}
+                <ShotList tickTimes={this.state.newTicktimes} />
 
 
             </View >
