@@ -11,7 +11,7 @@ import KeepAwake from "react-native-keep-awake";
 import ShotList from './shotList'
 import moment from "moment";
 import { Button, Container, Content, List, ListItem } from 'native-base'
-import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
+// import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
 export default class TimerComponent extends Component {
@@ -19,19 +19,19 @@ export default class TimerComponent extends Component {
         super(props);
         this.state = {
 
-            timerStart: false,
-            stopwatchStart: false,
+            // timerStart: false,
+            // stopwatchStart: false,
             totalDuration: 90000,
             timerReset: false,
-            stopwatchReset: false,
+            // stopwatchReset: false,
             tickTimes: [],
             newTicktimes: []
         };
-        this.toggleTimer = this.toggleTimer.bind(this);
-        this.resetTimer = this.resetTimer.bind(this);
-        this.toggleStopwatch = this.toggleStopwatch.bind(this);
-        this.resetStopwatch = this.resetStopwatch.bind(this);
-        this.getTick = this.getTick.bind(this)
+        // this.toggleTimer = this.toggleTimer.bind(this);
+        // this.resetTimer = this.resetTimer.bind(this);
+        // this.toggleStopwatch = this.toggleStopwatch.bind(this);
+        // this.resetStopwatch = this.resetStopwatch.bind(this);
+        // this.getTick = this.getTick.bind(this)
         this.testButton = this.testButton.bind(this)
         this.stopRecording = this.stopRecording.bind(this)
     }
@@ -74,22 +74,22 @@ export default class TimerComponent extends Component {
         AudioRecorder.stopRecording();
         console.log('STOPPED, LOOGED THESE TIMES', this.state.newTicktimes)
     }
-    toggleTimer() {
-        this.setState({ timerStart: !this.state.timerStart, timerReset: false });
-    }
+    // toggleTimer() {
+    //     this.setState({ timerStart: !this.state.timerStart, timerReset: false });
+    // }
 
-    resetTimer() {
-        this.setState({ timerStart: false, timerReset: true });
-    }
+    // resetTimer() {
+    //     this.setState({ timerStart: false, timerReset: true });
+    // }
 
-    toggleStopwatch() {
-        this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
-    }
+    // toggleStopwatch() {
+    //     this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
+    // }
 
-    resetStopwatch() {
-        this.setState({ stopwatchStart: false, stopwatchReset: true });
+    // resetStopwatch() {
+    //     this.setState({ stopwatchStart: false, stopwatchReset: true });
 
-    }
+    // }
 
     getFormattedTime = (time) => {
         this.currentTime = time;
@@ -98,38 +98,40 @@ export default class TimerComponent extends Component {
 
 
 
-    getTick() {
-        this.toggleStopwatch()
-        console.log('THIS.CURRENTTIME', this.currentTime)
-        this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] }, function () {
+    // getTick() {
+    //     this.toggleStopwatch()
+    //     console.log('THIS.CURRENTTIME', this.currentTime)
+    //     this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] }, function () {
 
-            this.toggleStopwatch()
-        })
-        // setTimeout(() => { this.toggleStopwatch() }, 1);
-        console.log('STATE', this.state)
+    //         this.toggleStopwatch()
+    //     })
+    //     // setTimeout(() => { this.toggleStopwatch() }, 1);
+    //     console.log('STATE', this.state)
 
-    }
+    // }
 
     render() {
         return (
-            <View>
-                <Stopwatch laps msecs start={this.state.stopwatchStart}
+            <View style={{ marginTop: 20 }}>
+                <StatusBar
+                    backgroundColor="blue"
+                    barStyle="light-content"
+                />
+                {/* <Stopwatch laps msecs start={this.state.stopwatchStart}
                     reset={this.state.stopwatchReset}
                     options={options}
-                    getTime={(time) => this.getFormattedTime(time)} />
+                    getTime={(time) => this.getFormattedTime(time)} /> */}
 
-                <Button block onPress={this.toggleStopwatch}>
-                    {/* <Icon name='start' /> */}
+                {/* <Button block onPress={this.toggleStopwatch}>
                     <Text>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
                 </Button>
                 <Button block onPress={this.resetStopwatch}>
-                    {/* <Icon name='start' /> */}
                     <Text>Reset</Text>
                 </Button>
                 <Button block onPress={this.getTick}>
-                    {/* <Icon name='start' /> */}
                     <Text>Tick</Text>
-                </Button>
+                </Button> */}
+
                 <Button block onPress={this.testButton}>
                     {/* <Icon name='start' /> */}
                     <Text>RECORD</Text>

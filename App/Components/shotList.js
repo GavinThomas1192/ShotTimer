@@ -18,40 +18,21 @@ export default class ShotList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            formattedTimes: [],
+            shotTimes: [],
             difference: [],
         }
-        this.calculateDifferences = this.calculateDifferences.bind(this)
     }
 
-    calculateDifferences() {
-        let tempTimes = []
-        let difference = 0
-        let unformattedTimes = []
+    componentDidMount() {
+        console.log('didMount', this.props.tickTimes)
 
-        Promise.all(this.props.tickTimes.map(ele => {
-            //remove all the colons from formatted times from npm package
-            tempTime = ele.replace(/:/g, '')
-            tempTimes.push(parseInt(tempTime))
+        this.setState({ shotTimes: this.props.tickTimes })
+    }
 
-        })).then(() => {
-            this.setState({ formattedTimes: tempTimes })
-        }).then(() => {
-            let final = '';
-            //get differences from raw numbers
-            for (var i = 0; i < this.state.formattedTimes.length; i++) {
-                difference = (this.state.formattedTimes[i + 1] - this.state.formattedTimes[i])
-                console.log('what im looking for', difference)
-                //add back some decimals to be readable on differences
-                final = difference.toString().substring(0, difference.toString().length - 3) + "." + difference.toString().substring(difference.toString().length - 3)
-                { isNaN(final) ? undefined : unformattedTimes.push(final) }
-
-            }
-        }).then(() => {
-            this.setState({ difference: unformattedTimes }, function () {
-                console.log('yolo', this.state.difference)
-            })
-        })
+    componentWillReceiveProps(nextProps) {
+        console.log('nextProps', nextProps)
+        this.setState({ shotTimes: nextProps.tickTimes })
+        console.log('state after nextProps', this.state)
 
     }
     render() {
@@ -59,42 +40,27 @@ export default class ShotList extends Component {
         return (
             <Container>
                 <Content>
-                    <List>
-                        {this.props.tickTimes.map(ele => {
-                            return <ListItem style={styles.timeText}>
-                                <Text>{ele}</Text>
-                            </ListItem>
-                        })}
 
-                    </List>
-                    <Text style={styles.timeText}> Differences!</Text>
-                    <List>
-
-                        {this.state.difference.map(ele => {
-                            console.log(ele, ele.toString().length, typeof ele)
-                            return <ListItem style={styles.timeText}>
-                                <Text>{ele + " Seconds"}</Text>
-                            </ListItem>
-
-                        })}
-
-                    </List>
                     <Text style={styles.timeText}> Result List!</Text>
                     <List>
                         {this.props.tickTimes.map((ele, index) => {
-                            { this.state.difference[index] !== undefined ? dynamicLastText = this.state.difference[index] + " Seconds" : dynamicLastText = "No last shot" }
-                            // dynamicLastShotText = {this.state.difference[index] !== undefined ? this.state.difference[index] : "No last shot"}
+                            // let diff/erence;
+                            let difference = (ele - this.props.tickTimes[(index - 1)])
+
+
+
+                            { Number.isNaN(difference) ? difference = 'None' : undefined }
+
                             return <ListItem style={styles.timeText}>
-                                <Text>{index + ") " + "Shot " + index + " @ " + ele + ". Difference " + dynamicLastText}</Text>
-                                {/* <Text>{this.props.tickTimes[index]}</Text> */}
+                                <Text>{"Shot " + (index + 1) + " @ " + ele.toFixed(3) + "."}</Text>
+                                <Text>{" Difference " + difference}</Text>
                             </ListItem>
                         })}
 
                     </List>
-                    <Button block onPress={this.calculateDifferences}>
-                        {/* <Icon name='start' /> */}
+                    {/* <Button block onPress={this.calculateDifferences}>
                         <Text>Get Differences</Text>
-                    </Button>
+                    </Button> */}
                 </Content>
             </Container>
         );
