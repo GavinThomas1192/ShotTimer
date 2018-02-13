@@ -9,7 +9,7 @@ export default StyleSheet.create({
         marginTop: 60,
         // marginVertical: Metrics.baseMargin,
         // flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
     },
