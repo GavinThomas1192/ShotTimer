@@ -13,7 +13,6 @@ import ShotList from './shotList'
 import moment from "moment";
 
 
-// import Sound from 'react-native-sound'
 
 
 import CountdownCircle from 'react-native-countdown-circle'

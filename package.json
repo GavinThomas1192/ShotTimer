@@ -14,7 +14,6 @@
     "react-native-audio": "^3.5.1",
     "react-native-countdown-circle": "^3.0.0",
     "react-native-keep-awake": "^2.0.6",
-    "react-native-sound": "^0.10.5",
     "react-native-stopwatch-timer": "0.0.20"
   },
   "devDependencies": {
