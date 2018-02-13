@@ -9,16 +9,16 @@ export default StyleSheet.create({
         marginTop: 60,
         // marginVertical: Metrics.baseMargin,
         // flex: 1,
-        backgroundColor: '#000',
+        // backgroundColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
     },
     timeText: {
-        color: '#999999',
+        color: 'black',
         fontSize: 20,
     },
     dateText: {
-        color: '#999999',
+        color: 'black',
         fontSize: 40,
     }
 

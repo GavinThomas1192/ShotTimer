@@ -6,7 +6,7 @@ export default StyleSheet.create({
 
     container: {
         paddingBottom: Metrics.baseMargin,
-        backgroundColor: 'black',
+        backgroundColor: 'white',
     },
     logo: {
         marginTop: Metrics.doubleSection,

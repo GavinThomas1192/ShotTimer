@@ -4,34 +4,42 @@ import {
     Text,
     StyleSheet,
     StatusBar,
-    TouchableHighlight
+    TouchableHighlight,
+    Platform
 } from "react-native";
 import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
 import ShotList from './shotList'
 import moment from "moment";
-import { Button, Container, Content, List, ListItem } from 'native-base'
+
+
+// import Sound from 'react-native-sound'
+
+
+import CountdownCircle from 'react-native-countdown-circle'
+
+
+
+import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker } from 'native-base'
 // import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
+
+const Item = Picker.Item;
 
 export default class TimerComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
 
-            // timerStart: false,
-            // stopwatchStart: false,
             totalDuration: 90000,
             timerReset: false,
-            // stopwatchReset: false,
             tickTimes: [],
-            newTicktimes: []
+            newTicktimes: [],
+            timerDelay: 'timerDelay5',
+            autoStop: 'autoStop0',
+            toggleCountdown: false,
         };
-        // this.toggleTimer = this.toggleTimer.bind(this);
-        // this.resetTimer = this.resetTimer.bind(this);
-        // this.toggleStopwatch = this.toggleStopwatch.bind(this);
-        // this.resetStopwatch = this.resetStopwatch.bind(this);
-        // this.getTick = this.getTick.bind(this)
+
         this.testButton = this.testButton.bind(this)
         this.stopRecording = this.stopRecording.bind(this)
     }
@@ -46,11 +54,43 @@ export default class TimerComponent extends Component {
             AudioEncoding: "aac",
             MeteringEnabled: true,
         });
+
+        // Sound.setCategory('Playback');
+
+        // // Load the sound file 'whoosh.mp3' from the app bundle
+        // // See notes below about preloading sounds within initialization code below.
+        // let airHornSound = new Sound('sport_air_horn_002.mp3', Sound.MAIN_BUNDLE, (error) => {
+        //     if (error) {
+        //         console.log('failed to load the sound', error);
+        //         return;
+        //     }
+        //     // loaded successfully
+        //     console.log('duration in seconds: ' + airHornSound.getDuration() + 'number of channels: ' + airHornSound.getNumberOfChannels());
+        // });
+
+        // // Play the sound with an onEnd callback
+        // airHornSound.play((success) => {
+        //     if (success) {
+        //         console.log('successfully finished playing');
+        //     } else {
+        //         console.log('playback failed due to audio decoding errors');
+        //         // reset the player to its uninitialized state (android only)
+        //         // this is the only option to recover after an error occured and use the player again
+        //         airHornSound.reset();
+        //     }
+        // });
     }
 
-    // Note you have access to .pause() and .stop()
+
+
+    startButton = () => {
+
+        this.setState({ toggleCountdown: true })
+    }
+
 
     testButton() {
+
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
             let decibels = Math.floor(data.currentMetering);
@@ -64,9 +104,7 @@ export default class TimerComponent extends Component {
                     console.log(this.state)
                 }) : undefined
             }
-            // 0.1355978548526764
 
-            // 2.916689395904541
         };
     }
 
@@ -74,68 +112,102 @@ export default class TimerComponent extends Component {
         AudioRecorder.stopRecording();
         console.log('STOPPED, LOOGED THESE TIMES', this.state.newTicktimes)
     }
-    // toggleTimer() {
-    //     this.setState({ timerStart: !this.state.timerStart, timerReset: false });
-    // }
-
-    // resetTimer() {
-    //     this.setState({ timerStart: false, timerReset: true });
-    // }
-
-    // toggleStopwatch() {
-    //     this.setState({ stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false });
-    // }
-
-    // resetStopwatch() {
-    //     this.setState({ stopwatchStart: false, stopwatchReset: true });
-
-    // }
-
-    getFormattedTime = (time) => {
-        this.currentTime = time;
-
-    };
 
 
+    onValueChange(value) {
+        {
+            value.replace(/\d/g, '') == 'autoStop' ?
+                this.setState({
+                    autoStop: value
+                })
+                :
+                this.setState({
+                    timerDelay: value
+                })
 
-    // getTick() {
-    //     this.toggleStopwatch()
-    //     console.log('THIS.CURRENTTIME', this.currentTime)
-    //     this.setState({ tickTimes: [...this.state.tickTimes, this.currentTime] }, function () {
+        }
+    }
 
-    //         this.toggleStopwatch()
-    //     })
-    //     // setTimeout(() => { this.toggleStopwatch() }, 1);
-    //     console.log('STATE', this.state)
-
-    // }
 
     render() {
         return (
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: 0 }}>
                 <StatusBar
                     backgroundColor="blue"
                     barStyle="light-content"
                 />
-                {/* <Stopwatch laps msecs start={this.state.stopwatchStart}
-                    reset={this.state.stopwatchReset}
-                    options={options}
-                    getTime={(time) => this.getFormattedTime(time)} /> */}
+                <Header style={{ backgroundColor: 'black' }}>
+                    <Left>
+                        <Button transparent>
+                            <Icon name='arrow-back' />
+                        </Button>
+                    </Left>
+                    <Body>
+                        <Title style={{ color: 'white' }}>Shot Timer</Title>
+                    </Body>
+                    <Right>
+                        <Button transparent>
+                            <Icon name='menu' />
+                        </Button>
+                    </Right>
+                </Header>
 
-                {/* <Button block onPress={this.toggleStopwatch}>
-                    <Text>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
+                <Content>
+                    <Text>Timer Delay</Text>
+                    <Form>
+
+                        <Picker
+                            iosHeader="Select one"
+                            mode="dropdown"
+                            selectedValue={this.state.timerDelay}
+                            onValueChange={this.onValueChange.bind(this)}
+                        >
+
+                            <Item label="5 Seconds" value="timerDelay5" />
+                            <Item label="10 Seconds" value="timerDelay10" />
+                            <Item label="15 Seconds" value="timerDelay15" />
+                            <Item label="20 Seconds" value="timerDelay20" />
+                            <Item label="30 Seconds" value="timerDelay30" />
+                        </Picker>
+                    </Form>
+                    <Text>Automatic Timer Stop</Text>
+                    <Form>
+
+                        <Picker
+                            iosHeader="Select one"
+                            mode="dropdown"
+                            selectedValue={this.state.autoStop}
+                            onValueChange={this.onValueChange.bind(this)}
+                        >
+                            <Item label="None" value="autoStop0" />
+                            <Item label="5 Seconds" value="autoStop5" />
+                            <Item label="10 Seconds" value="autoStop10" />
+                            <Item label="15 Seconds" value="autoStop15" />
+                            <Item label="20 Seconds" value="autoStop20" />
+                            <Item label="30 Seconds" value="autoStop30" />
+                        </Picker>
+                    </Form>
+                </Content>
+
+                <Button block onPress={this.startButton}>
+                    {/* <Icon name='start' /> */}
+                    <Text>Start</Text>
                 </Button>
-                <Button block onPress={this.resetStopwatch}>
-                    <Text>Reset</Text>
-                </Button>
-                <Button block onPress={this.getTick}>
-                    <Text>Tick</Text>
-                </Button> */}
 
                 <Button block onPress={this.testButton}>
                     {/* <Icon name='start' /> */}
                     <Text>RECORD</Text>
                 </Button>
+                {this.state.toggleCountdown ?
+                    <CountdownCircle
+                        seconds={this.state.timerDelay.replace(/\D/g, '')}
+                        radius={30}
+                        borderWidth={8}
+                        color="#ff003f"
+                        bgColor="#fff"
+                        textStyle={{ fontSize: 20 }}
+                        onTimeElapsed={this.testButton}
+                    /> : undefined}
                 <Button block onPress={this.stopRecording}>
                     {/* <Icon name='start' /> */}
                     <Text>STOP</Text>
