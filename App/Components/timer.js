@@ -19,7 +19,7 @@ import CountdownCircle from 'react-native-countdown-circle'
 
 
 
-import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker } from 'native-base'
+import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer } from 'native-base'
 // import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
@@ -169,7 +169,7 @@ export default class TimerScreen extends Component {
     }
 
     handleMenuChange = () => {
-        // this.props.navigation.navigate('TimerScreen')
+        this.drawer._root.open()
     }
 
 
@@ -197,6 +197,13 @@ export default class TimerScreen extends Component {
                         </Button>
                     </Right>
                 </Header>
+
+                <Drawer
+                    ref={(ref) => { this.drawer = ref; }}
+                    content={<ShotList tickTimes={this.state.newTicktimes} />}
+                    onClose={() => this.closeDrawer()}
+                    onOpen={() => this.handleMenuChange()} >
+                </Drawer>
 
                 <Content>
                     <Text>Timer Delay</Text>
