@@ -13,8 +13,7 @@ import ShotList from './shotList'
 import moment from "moment";
 
 
-// import Sound from 'react-native-sound'
-
+import Sound from 'react-native-sound'
 
 import CountdownCircle from 'react-native-countdown-circle'
 
@@ -38,6 +37,9 @@ export default class TimerComponent extends Component {
             timerDelay: 'timerDelay5',
             autoStop: 'autoStop0',
             toggleCountdown: false,
+            airHornSound: '',
+            countDown: '',
+            counter: 0,
         };
 
         this.testButton = this.testButton.bind(this)
@@ -55,30 +57,32 @@ export default class TimerComponent extends Component {
             MeteringEnabled: true,
         });
 
-        // Sound.setCategory('Playback');
+        Sound.setCategory('Playback');
 
-        // // Load the sound file 'whoosh.mp3' from the app bundle
-        // // See notes below about preloading sounds within initialization code below.
-        // let airHornSound = new Sound('sport_air_horn_002.mp3', Sound.MAIN_BUNDLE, (error) => {
-        //     if (error) {
-        //         console.log('failed to load the sound', error);
-        //         return;
-        //     }
-        //     // loaded successfully
-        //     console.log('duration in seconds: ' + airHornSound.getDuration() + 'number of channels: ' + airHornSound.getNumberOfChannels());
-        // });
+        // Load the sound file 'whoosh.mp3' from the app bundle
+        // See notes below about preloading sounds within initialization code below.
+        let GetAirHornSound = new Sound('sport_air_horn_002.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if (error) {
+                console.log('failed to load the sound', error);
+                return;
+            }
+            // loaded successfully
+            console.log('duration in seconds: ' + GetAirHornSound.getDuration() + 'number of channels: ' + GetAirHornSound.getNumberOfChannels());
+            this.setState({ airHornSound: GetAirHornSound })
+        });
 
-        // // Play the sound with an onEnd callback
-        // airHornSound.play((success) => {
-        //     if (success) {
-        //         console.log('successfully finished playing');
-        //     } else {
-        //         console.log('playback failed due to audio decoding errors');
-        //         // reset the player to its uninitialized state (android only)
-        //         // this is the only option to recover after an error occured and use the player again
-        //         airHornSound.reset();
-        //     }
-        // });
+        let GetCountDown = new Sound('count_down.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if (error) {
+                console.log('failed to load the sound', error);
+                return;
+            }
+            // loaded successfully
+            console.log('duration in seconds: ' + GetCountDown.getDuration() + 'number of channels: ' + GetCountDown.getNumberOfChannels());
+            this.setState({ countDown: GetCountDown })
+        });
+
+        // Play the sound with an onEnd callback
+
     }
 
 
@@ -88,8 +92,30 @@ export default class TimerComponent extends Component {
         this.setState({ toggleCountdown: true })
     }
 
+    handleTickSound = (totalSecs) => {
+        console.log(this.state, totalSecs, 'yolololo')
+        { totalSecs == 5 || totalSecs == 0 ? undefined : this.state.countDown.play() }
+
+    }
+
+    secondTick = (elapsedSecs, totalSecs) => {
+        this.handleTickSound(elapsedSecs)
+        return (totalSecs - elapsedSecs).toString()
+    }
+
 
     testButton() {
+
+        this.state.airHornSound.play((success) => {
+            if (success) {
+                console.log('successfully finished playing');
+            } else {
+                console.log('playback failed due to audio decoding errors');
+                // reset the player to its uninitialized state (android only)
+                // this is the only option to recover after an error occured and use the player again
+                this.state.airHornSound.reset();
+            }
+        });
 
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
@@ -194,10 +220,7 @@ export default class TimerComponent extends Component {
                     <Text>Start</Text>
                 </Button>
 
-                <Button block onPress={this.testButton}>
-                    {/* <Icon name='start' /> */}
-                    <Text>RECORD</Text>
-                </Button>
+
                 {this.state.toggleCountdown ?
                     <CountdownCircle
                         seconds={this.state.timerDelay.replace(/\D/g, '')}
@@ -205,6 +228,7 @@ export default class TimerComponent extends Component {
                         borderWidth={8}
                         color="#ff003f"
                         bgColor="#fff"
+                        updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
                     /> : undefined}
