@@ -117,6 +117,8 @@ export default class TimerComponent extends Component {
             }
         });
 
+        this.setState({ toggleCountdown: false })
+
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
             let decibels = Math.floor(data.currentMetering);
@@ -215,10 +217,6 @@ export default class TimerComponent extends Component {
                     </Form>
                 </Content>
 
-                <Button block onPress={this.startButton}>
-                    {/* <Icon name='start' /> */}
-                    <Text>Start</Text>
-                </Button>
 
 
                 {this.state.toggleCountdown ?
@@ -231,7 +229,10 @@ export default class TimerComponent extends Component {
                         updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
-                    /> : undefined}
+                    /> : <Button block onPress={this.startButton}>
+                        {/* <Icon name='start' /> */}
+                        <Text>Start</Text>
+                    </Button>}
                 <Button block onPress={this.stopRecording}>
                     {/* <Icon name='start' /> */}
                     <Text>STOP</Text>
