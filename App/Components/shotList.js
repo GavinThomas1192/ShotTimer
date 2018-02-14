@@ -53,7 +53,7 @@ export default class ShotList extends Component {
 
                             return <ListItem style={styles.timeText}>
                                 <Text>{"Shot " + (index + 1) + " @ " + ele.toFixed(3) + "."}</Text>
-                                <Text>{" Difference " + difference}</Text>
+                                <Text>{" Difference " + difference.toFixed(3)}</Text>
                             </ListItem>
                         })}
 
