@@ -38,6 +38,8 @@ export default class TimerComponent extends Component {
             autoStop: 'autoStop0',
             toggleCountdown: false,
             airHornSound: '',
+            countDown: '',
+            counter: 0,
         };
 
         this.testButton = this.testButton.bind(this)
@@ -69,6 +71,16 @@ export default class TimerComponent extends Component {
             this.setState({ airHornSound: GetAirHornSound })
         });
 
+        let GetCountDown = new Sound('count_down.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if (error) {
+                console.log('failed to load the sound', error);
+                return;
+            }
+            // loaded successfully
+            console.log('duration in seconds: ' + GetCountDown.getDuration() + 'number of channels: ' + GetCountDown.getNumberOfChannels());
+            this.setState({ countDown: GetCountDown })
+        });
+
         // Play the sound with an onEnd callback
 
     }
@@ -78,6 +90,17 @@ export default class TimerComponent extends Component {
     startButton = () => {
 
         this.setState({ toggleCountdown: true })
+    }
+
+    handleTickSound = (totalSecs) => {
+        console.log(this.state, totalSecs, 'yolololo')
+        { totalSecs == 5 || totalSecs == 0 ? undefined : this.state.countDown.play() }
+
+    }
+
+    secondTick = (elapsedSecs, totalSecs) => {
+        this.handleTickSound(elapsedSecs)
+        return (totalSecs - elapsedSecs).toString()
     }
 
 
@@ -197,10 +220,7 @@ export default class TimerComponent extends Component {
                     <Text>Start</Text>
                 </Button>
 
-                <Button block onPress={this.testButton}>
-                    {/* <Icon name='start' /> */}
-                    <Text>RECORD</Text>
-                </Button>
+
                 {this.state.toggleCountdown ?
                     <CountdownCircle
                         seconds={this.state.timerDelay.replace(/\D/g, '')}
@@ -208,6 +228,7 @@ export default class TimerComponent extends Component {
                         borderWidth={8}
                         color="#ff003f"
                         bgColor="#fff"
+                        updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
                     /> : undefined}

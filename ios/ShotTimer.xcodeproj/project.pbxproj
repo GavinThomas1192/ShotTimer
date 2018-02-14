@@ -25,6 +25,7 @@
 		23B8235E2033B7F0009D5C88 /* libRNAudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23B823532033B3BC009D5C88 /* libRNAudio.a */; };
 		23B8235F2033B7F8009D5C88 /* libRNSound.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23B823592033B3BC009D5C88 /* libRNSound.a */; };
 		23B823612033B99E009D5C88 /* sport_air_horn_002.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 23B823602033B99E009D5C88 /* sport_air_horn_002.mp3 */; };
+		23B823632033BF35009D5C88 /* count_down.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 23B823622033BF34009D5C88 /* count_down.mp3 */; };
 		25F0457E6D9B4A62A012878A /* Roboto_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F8851B915F3C48DE96E1F2D5 /* Roboto_medium.ttf */; };
 		267B8BA89C184B87836B425C /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 14B781BDA1C541B39AE4E392 /* Octicons.ttf */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
@@ -325,6 +326,7 @@
 		14B781BDA1C541B39AE4E392 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/native-base/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		1C32A88BED3F49778B1A9AD4 /* libRNSound.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSound.a; sourceTree = "<group>"; };
 		23B823602033B99E009D5C88 /* sport_air_horn_002.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = sport_air_horn_002.mp3; path = ../../../../Downloads/sport_air_horn_002.mp3; sourceTree = "<group>"; };
+		23B823622033BF34009D5C88 /* count_down.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = count_down.mp3; path = ../../../../Downloads/count_down.mp3; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* ShotTimer-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ShotTimer-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* ShotTimer-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ShotTimer-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E2BEBA4C3CB4CE5BB5DCC6A /* libKCKeepAwake.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libKCKeepAwake.a; sourceTree = "<group>"; };
@@ -628,6 +630,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				23B823622033BF34009D5C88 /* count_down.mp3 */,
 				23B823602033B99E009D5C88 /* sport_air_horn_002.mp3 */,
 				13B07FAE1A68108700A75B9A /* ShotTimer */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -1102,6 +1105,7 @@
 				25F0457E6D9B4A62A012878A /* Roboto_medium.ttf in Resources */,
 				ED3171CC6FDC4CA7817AEB34 /* Roboto.ttf in Resources */,
 				98B84A288E8F4362B2B6252B /* rubicon-icon-font.ttf in Resources */,
+				23B823632033BF35009D5C88 /* count_down.mp3 in Resources */,
 				474A2307AD9440A598A587F0 /* SimpleLineIcons.ttf in Resources */,
 				23B823612033B99E009D5C88 /* sport_air_horn_002.mp3 in Resources */,
 				9458807298064B2BBC0AE897 /* Zocial.ttf in Resources */,
