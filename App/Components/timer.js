@@ -23,10 +23,10 @@ import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, 
 // import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
-const Item = Picker.Item;
 
-export default class TimerComponent extends Component {
+export default class TimerScreen extends Component {
     constructor(props) {
+
         super(props);
         this.state = {
 
@@ -49,6 +49,9 @@ export default class TimerComponent extends Component {
     }
 
     componentDidMount() {
+        console.log('DONEDIDHERDIDMOUNT', this.props)
+        // const { navigate } = this.props.navigation;
+
         let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
 
         AudioRecorder.prepareRecordingAtPath(audioPath, {
@@ -165,8 +168,14 @@ export default class TimerComponent extends Component {
         }
     }
 
+    handleMenuChange = () => {
+        // this.props.navigation.navigate('TimerScreen')
+    }
+
 
     render() {
+        const Item = Picker.Item;
+        // const { navigate } = this.props.navigation
         return (
             <View style={{ marginTop: 0 }}>
                 <StatusBar
@@ -183,7 +192,7 @@ export default class TimerComponent extends Component {
                         <Title style={{ color: 'white' }}>Shot Timer</Title>
                     </Body>
                     <Right>
-                        <Button transparent>
+                        <Button transparent onPress={this.handleMenuChange}>
                             <Icon name='menu' />
                         </Button>
                     </Right>
