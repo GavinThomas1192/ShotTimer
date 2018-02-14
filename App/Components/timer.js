@@ -92,14 +92,14 @@ export default class TimerComponent extends Component {
         this.setState({ toggleCountdown: true })
     }
 
-    handleTickSound = (totalSecs) => {
+    handleTickSound = (elapsedSecs, totalSecs) => {
         console.log(this.state, totalSecs, 'yolololo')
-        { totalSecs == 5 || totalSecs == 0 ? undefined : this.state.countDown.play() }
+        { elapsedSecs == totalSecs || elapsedSecs == 0 ? undefined : this.state.countDown.play() }
 
     }
 
     secondTick = (elapsedSecs, totalSecs) => {
-        this.handleTickSound(elapsedSecs)
+        this.handleTickSound(elapsedSecs, totalSecs)
         return (totalSecs - elapsedSecs).toString()
     }
 
@@ -116,6 +116,8 @@ export default class TimerComponent extends Component {
                 this.state.airHornSound.reset();
             }
         });
+
+        this.setState({ toggleCountdown: false })
 
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
@@ -215,10 +217,6 @@ export default class TimerComponent extends Component {
                     </Form>
                 </Content>
 
-                <Button block onPress={this.startButton}>
-                    {/* <Icon name='start' /> */}
-                    <Text>Start</Text>
-                </Button>
 
 
                 {this.state.toggleCountdown ?
@@ -231,7 +229,10 @@ export default class TimerComponent extends Component {
                         updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
-                    /> : undefined}
+                    /> : <Button block onPress={this.startButton}>
+                        {/* <Icon name='start' /> */}
+                        <Text>Start</Text>
+                    </Button>}
                 <Button block onPress={this.stopRecording}>
                     {/* <Icon name='start' /> */}
                     <Text>STOP</Text>
