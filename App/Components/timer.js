@@ -90,6 +90,9 @@ export default class TimerScreen extends Component {
         // Play the sound with an onEnd callback
 
     }
+    componentDidUpdate() {
+        // console.log('DONE DID UPDATE', this.props.navigation.state.params.highestSoundLevel)
+    }
 
 
 
@@ -139,11 +142,20 @@ export default class TimerScreen extends Component {
             //     data.currentTime
             // )
 
-            {
+            if (this.props.navigation.state.params.highestSoundLevel !== undefined) {
+
+                if (data.currentMetering > this.props.navigation.state.params.highestSoundLevel) {
+                    this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
+                        console.log(this.state)
+                    })
+                }
+            } else {
                 data.currentMetering > 0 ? this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
                     console.log(this.state)
                 }) : undefined
             }
+
+
 
         };
     }
@@ -192,7 +204,8 @@ export default class TimerScreen extends Component {
     }
 
     onCalibratePress = () => {
-
+        this.props.navigation.navigate('CalibrateMicrophoneScreen')
+        this.hideMenu()
     }
 
 
@@ -226,6 +239,8 @@ export default class TimerScreen extends Component {
                         </Menu>
                     </Right>
                 </Header>
+
+
 
                 {/* <Content> */}
                 <Text>Timer Delay</Text>
