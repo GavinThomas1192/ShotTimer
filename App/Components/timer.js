@@ -19,7 +19,7 @@ import CountdownCircle from 'react-native-countdown-circle'
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
 
-import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer } from 'native-base'
+import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer, Toast } from 'native-base'
 // import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
@@ -191,6 +191,10 @@ export default class TimerScreen extends Component {
         this.hideMenu()
     }
 
+    onCalibratePress = () => {
+
+    }
+
 
     render() {
         const Item = Picker.Item;
@@ -199,9 +203,16 @@ export default class TimerScreen extends Component {
         return (
             <View style={{ marginTop: 20 }}>
 
-
                 <Header style={{ backgroundColor: 'black' }}>
                     <Left>
+                        <Button transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
+                            <Icon name='home' />
+                        </Button>
+                    </Left>
+                    <Body>
+                        <Title style={{ color: 'white' }}>Shot Timer</Title>
+                    </Body>
+                    <Right>
                         <Button transparent onPress={this.showMenu}>
                             <Icon name='settings' />
                         </Button>
@@ -210,24 +221,18 @@ export default class TimerScreen extends Component {
                             style={{ alignSelf: 'flex-end' }}
                         >
                             {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
-                            <MenuItem onPress={() => this.props.navigation.navigate('SettingsScreen')} >Settings</MenuItem>
-                            <MenuDivider />
-                            <MenuItem onPress={() => this.onLogoutPress(this.props.navigation)}>Logout</MenuItem>
+
+                            <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
                         </Menu>
-                    </Left>
-                    <Body>
-                        <Title style={{ color: 'white' }}>Shot Timer</Title>
-                    </Body>
-                    <Right>
-                        <Button transparent onPress={this.handleMenuChange}>
-                            <Icon name='menu' />
-                        </Button>
                     </Right>
                 </Header>
 
                 {/* <Content> */}
                 <Text>Timer Delay</Text>
-                <Form>
+                <Form style={{
+                    alignContent: 'center',
+                    justifyContent: 'center'
+                }}>
 
                     <Picker
                         iosHeader="Select one"
@@ -247,6 +252,9 @@ export default class TimerScreen extends Component {
                         <Item label="20 Seconds" value="timerDelay20" />
                         <Item label="30 Seconds" value="timerDelay30" />
                     </Picker>
+                    <Button style={{ alignSelf: 'flex-start' }} transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
+                        <Icon name='help' />
+                    </Button>
                 </Form>
                 <Text>Automatic Timer Stop</Text>
                 <Form>
@@ -323,7 +331,7 @@ export default class TimerScreen extends Component {
     }
 }
 
-        // const handleTimerComplete = () => alert("custom completion function");
+                // const handleTimerComplete = () => alert("custom completion function");
 
 // const options = {
 //     container: {
