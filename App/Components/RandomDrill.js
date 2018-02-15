@@ -11,6 +11,7 @@ import styles from './Styles/shotList_styles'
 
 
 
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
 
 
@@ -32,7 +33,31 @@ export default class RandomDrill extends Component {
     }
 
     handleBackArrow = () => {
+        this.props.navigation.navigate('HomeScreen')
+    }
+
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+
+    menu = null;
+
+    hideMenu = () => {
+        this.menu.hide();
+    };
+
+    showMenu = () => {
+        this.menu.show();
+    };
+
+    onDrillScreenPress = () => {
+        this.props.navigation.navigate('RandomDrillScreen')
+        this.hideMenu()
+    }
+
+    onShotTimerPress = () => {
         this.props.navigation.navigate('TimerScreen')
+        this.hideMenu()
     }
     render() {
 
@@ -41,16 +66,24 @@ export default class RandomDrill extends Component {
                 <Header style={{ backgroundColor: 'black' }}>
                     <Left>
                         <Button transparent onPress={this.handleBackArrow}>
-                            <Icon name='arrow-back' />
+                            <Icon name='home' />
                         </Button>
                     </Left>
                     <Body>
                         <Title style={{ color: 'white' }}>Random Fire Drill</Title>
                     </Body>
                     <Right>
-                        <Button transparent onPress={this.handleBackArrow}>
-                            {/* <Icon name='arrow-back' /> */}
+                        <Button transparent onPress={this.showMenu}>
+                            <Icon name='settings' />
                         </Button>
+                        <Menu
+                            ref={this.setMenuRef}
+                            style={{ alignSelf: 'flex-end' }}
+                        >
+                            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+                            <MenuItem onPress={() => this.onShotTimerPress(this.props.navigation)}>Shot Timer</MenuItem>
+                            <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
+                        </Menu>
                     </Right>
 
                 </Header>

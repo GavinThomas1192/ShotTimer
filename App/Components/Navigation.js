@@ -4,6 +4,7 @@ import {
 
 import TimerScreen from './timer'
 import RandomDrillScreen from './RandomDrill'
+import HomeScreen from './HomeScreen'
 
 const Nav = StackNavigator({
     TimerScreen: {
@@ -21,13 +22,14 @@ const Nav = StackNavigator({
         //     headerTintColor: 'white',
         // }
     },
-    RandomDrillScreen: { screen: RandomDrillScreen }
+    RandomDrillScreen: { screen: RandomDrillScreen },
+    HomeScreen: { screen: HomeScreen }
     // RandomComponent: { screen: RandomComponent },
 
 
 },
     {
-        initialRouteName: 'TimerScreen',
+        initialRouteName: 'HomeScreen',
         headerMode: 'none',
     },
 
