@@ -3,9 +3,8 @@ import {
     Platform,
     StyleSheet,
     Text,
-    View
+    View, StatusBar
 } from 'react-native';
-import Nav from '../Components/Navigation'
 import { Button, Icon, Container, Content } from 'native-base'
 import TimerComponent from '../Components/timer'
 import styles from './Styles/app_style'
@@ -23,13 +22,15 @@ export default class App extends Component {
     render() {
         console.disableYellowBox = true;
         return (
-            <Container style={styles.container}>
-                <Content>
+            // <Container style={styles.container}>
+            //     <Content>
+            //         <TimerComponent />
+            //     </Content>
+            // </Container>
+            <Container>
 
-                    <TimerComponent />
-                </Content>
+                <Navigation />
             </Container>
-            // <Navigation />
         );
     }
 }
