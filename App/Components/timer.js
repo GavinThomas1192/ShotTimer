@@ -302,12 +302,12 @@ export default class TimerScreen extends Component {
                         updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
-                    /> : <Button block onPress={this.startButton}>
+                    /> : <Button style={{ margin: 20 }} block onPress={this.startButton}>
                         {/* <Icon name='start' /> */}
                         <Text>Start</Text>
                     </Button>}
 
-                <Button block onPress={this.stopRecording}>
+                <Button style={{ margin: 20 }} block onPress={this.stopRecording}>
                     {/* <Icon name='start' /> */}
                     <Text>STOP</Text>
                 </Button>
@@ -345,20 +345,3 @@ export default class TimerScreen extends Component {
         );
     }
 }
-
-                // const handleTimerComplete = () => alert("custom completion function");
-
-// const options = {
-//     container: {
-//         backgroundColor: '#000',
-//         padding: 5,
-//         borderRadius: 5,
-//         width: 220,
-//     },
-//     text: {
-//         fontSize: 30,
-//         color: '#FFF',
-//         marginLeft: 7,
-
-//     }
-// };
