@@ -11,12 +11,12 @@ import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
 import ShotList from './shotList'
 import moment from "moment";
-
-
+import SideBar from './SideBar'
 import Sound from 'react-native-sound'
 
 import CountdownCircle from 'react-native-countdown-circle'
 
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
 
 import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer } from 'native-base'
@@ -42,6 +42,7 @@ export default class TimerScreen extends Component {
             countDown: '',
             counter: 0,
             recording: false,
+            toggleNavMenu: false,
         };
 
         this.testButton = this.testButton.bind(this)
@@ -169,24 +170,50 @@ export default class TimerScreen extends Component {
     }
 
     handleMenuChange = () => {
-        this.drawer._root.open()
+        this.props.navigation.navigate('RandomDrillScreen')
+    }
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+
+    menu = null;
+
+    hideMenu = () => {
+        this.menu.hide();
+    };
+
+    showMenu = () => {
+        this.menu.show();
+    };
+
+    onDrillScreenPress = () => {
+        this.props.navigation.navigate('RandomDrillScreen')
+        this.hideMenu()
     }
 
 
     render() {
         const Item = Picker.Item;
+
         // const { navigate } = this.props.navigation
         return (
-            <View style={{ marginTop: 0 }}>
-                <StatusBar
-                    backgroundColor="blue"
-                    barStyle="light-content"
-                />
+            <View style={{ marginTop: 20 }}>
+
+
                 <Header style={{ backgroundColor: 'black' }}>
                     <Left>
-                        <Button transparent>
-                            <Icon name='arrow-back' />
+                        <Button transparent onPress={this.showMenu}>
+                            <Icon name='settings' />
                         </Button>
+                        <Menu
+                            ref={this.setMenuRef}
+                            style={{ alignSelf: 'flex-end' }}
+                        >
+                            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+                            <MenuItem onPress={() => this.props.navigation.navigate('SettingsScreen')} >Settings</MenuItem>
+                            <MenuDivider />
+                            <MenuItem onPress={() => this.onLogoutPress(this.props.navigation)}>Logout</MenuItem>
+                        </Menu>
                     </Left>
                     <Body>
                         <Title style={{ color: 'white' }}>Shot Timer</Title>
@@ -198,54 +225,47 @@ export default class TimerScreen extends Component {
                     </Right>
                 </Header>
 
-                <Drawer
-                    ref={(ref) => { this.drawer = ref; }}
-                    content={<ShotList tickTimes={this.state.newTicktimes} />}
-                    onClose={() => this.closeDrawer()}
-                    onOpen={() => this.handleMenuChange()} >
-                </Drawer>
+                {/* <Content> */}
+                <Text>Timer Delay</Text>
+                <Form>
 
-                <Content>
-                    <Text>Timer Delay</Text>
-                    <Form>
+                    <Picker
+                        iosHeader="Select one"
+                        mode="dropdown"
+                        selectedValue={this.state.timerDelay}
+                        onValueChange={this.onValueChange.bind(this)}
+                    >
+                        <Item label="No Delay" value="timerDelay0" />
+                        <Item label="Random" value="timerDelay100" />
+                        <Item label="1 Second" value="timerDelay1" />
+                        <Item label="2 Seconds" value="timerDelay2" />
+                        <Item label="3 Seconds" value="timerDelay3" />
+                        <Item label="4 Seconds" value="timerDelay4" />
+                        <Item label="5 Seconds" value="timerDelay5" />
+                        <Item label="10 Seconds" value="timerDelay10" />
+                        <Item label="15 Seconds" value="timerDelay15" />
+                        <Item label="20 Seconds" value="timerDelay20" />
+                        <Item label="30 Seconds" value="timerDelay30" />
+                    </Picker>
+                </Form>
+                <Text>Automatic Timer Stop</Text>
+                <Form>
 
-                        <Picker
-                            iosHeader="Select one"
-                            mode="dropdown"
-                            selectedValue={this.state.timerDelay}
-                            onValueChange={this.onValueChange.bind(this)}
-                        >
-                            <Item label="No Delay" value="timerDelay0" />
-                            <Item label="Random" value="timerDelay100" />
-                            <Item label="1 Second" value="timerDelay1" />
-                            <Item label="2 Seconds" value="timerDelay2" />
-                            <Item label="3 Seconds" value="timerDelay3" />
-                            <Item label="4 Seconds" value="timerDelay4" />
-                            <Item label="5 Seconds" value="timerDelay5" />
-                            <Item label="10 Seconds" value="timerDelay10" />
-                            <Item label="15 Seconds" value="timerDelay15" />
-                            <Item label="20 Seconds" value="timerDelay20" />
-                            <Item label="30 Seconds" value="timerDelay30" />
-                        </Picker>
-                    </Form>
-                    <Text>Automatic Timer Stop</Text>
-                    <Form>
-
-                        <Picker
-                            iosHeader="Select one"
-                            mode="dropdown"
-                            selectedValue={this.state.autoStop}
-                            onValueChange={this.onValueChange.bind(this)}
-                        >
-                            <Item label="None" value="autoStop0" />
-                            <Item label="5 Seconds" value="autoStop5" />
-                            <Item label="10 Seconds" value="autoStop10" />
-                            <Item label="15 Seconds" value="autoStop15" />
-                            <Item label="20 Seconds" value="autoStop20" />
-                            <Item label="30 Seconds" value="autoStop30" />
-                        </Picker>
-                    </Form>
-                </Content>
+                    <Picker
+                        iosHeader="Select one"
+                        mode="dropdown"
+                        selectedValue={this.state.autoStop}
+                        onValueChange={this.onValueChange.bind(this)}
+                    >
+                        <Item label="None" value="autoStop0" />
+                        <Item label="5 Seconds" value="autoStop5" />
+                        <Item label="10 Seconds" value="autoStop10" />
+                        <Item label="15 Seconds" value="autoStop15" />
+                        <Item label="20 Seconds" value="autoStop20" />
+                        <Item label="30 Seconds" value="autoStop30" />
+                    </Picker>
+                </Form>
+                {/* </Content> */}
 
 
                 {/* COUNTDOWN CIRCLE OTHERWISE START BUTTON */}
@@ -276,7 +296,9 @@ export default class TimerScreen extends Component {
 
                 {/* IF TIMER DELAY SHOW NEW COUNTDOWN CLOCK THEN START RECORDING */}
                 {this.state.toggleAutoStop && this.state.autoStop.replace(/\D/g, '') > 0 ?
-                    <Content>
+                    // <Content>
+                    <View>
+
                         <Text>Automatic Stop In..</Text>
                         <CountdownCircle
                             seconds={this.state.autoStop.replace(/\D/g, '')}
@@ -288,32 +310,32 @@ export default class TimerScreen extends Component {
                             textStyle={{ fontSize: 20 }}
                             onTimeElapsed={this.stopRecording}
                         />
-                    </Content>
+                    </View>
+                    // </Content>
                     : undefined
                 }
 
                 {/* FORMATTED SHOT LIST */}
                 <ShotList tickTimes={this.state.newTicktimes} />
 
-
             </View >
         );
     }
 }
 
-const handleTimerComplete = () => alert("custom completion function");
+        // const handleTimerComplete = () => alert("custom completion function");
 
-const options = {
-    container: {
-        backgroundColor: '#000',
-        padding: 5,
-        borderRadius: 5,
-        width: 220,
-    },
-    text: {
-        fontSize: 30,
-        color: '#FFF',
-        marginLeft: 7,
+// const options = {
+//     container: {
+//         backgroundColor: '#000',
+//         padding: 5,
+//         borderRadius: 5,
+//         width: 220,
+//     },
+//     text: {
+//         fontSize: 30,
+//         color: '#FFF',
+//         marginLeft: 7,
 
-    }
-};
+//     }
+// };
