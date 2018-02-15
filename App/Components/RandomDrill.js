@@ -59,6 +59,11 @@ export default class RandomDrill extends Component {
         this.props.navigation.navigate('TimerScreen')
         this.hideMenu()
     }
+
+    onCalibratePress = () => {
+        this.props.navigation.navigate('CalibrateMicrophoneScreen')
+        this.hideMenu()
+    }
     render() {
 
         return (

@@ -5,6 +5,7 @@ import {
 import TimerScreen from './timer'
 import RandomDrillScreen from './RandomDrill'
 import HomeScreen from './HomeScreen'
+import CalibrateMicrophoneScreen from './CalibrateMicrophoneScreen'
 
 const Nav = StackNavigator({
     TimerScreen: {
@@ -23,7 +24,8 @@ const Nav = StackNavigator({
         // }
     },
     RandomDrillScreen: { screen: RandomDrillScreen },
-    HomeScreen: { screen: HomeScreen }
+    HomeScreen: { screen: HomeScreen },
+    CalibrateMicrophoneScreen: { screen: CalibrateMicrophoneScreen },
     // RandomComponent: { screen: RandomComponent },
 
 

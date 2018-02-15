@@ -22,14 +22,6 @@ export default class HomeScreen extends Component {
         }
     }
 
-    componentDidMount() {
-
-    }
-
-    componentWillReceiveProps(nextProps) {
-
-
-    }
 
     setMenuRef = ref => {
         this.menu = ref;
@@ -52,6 +44,11 @@ export default class HomeScreen extends Component {
 
     onShotTimerPress = () => {
         this.props.navigation.navigate('TimerScreen')
+        this.hideMenu()
+    }
+
+    onCalibratePress = () => {
+        this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
     }
     render() {
@@ -107,6 +104,10 @@ export default class HomeScreen extends Component {
                     <Button style={{ margin: 20 }} block onPress={() => this.props.navigation.navigate('RandomDrillScreen')}>
                         {/* <Icon name='start' /> */}
                         <Text>Random Fire Excersize</Text>
+                    </Button>
+                    <Button style={{ margin: 20 }} block onPress={() => this.props.navigation.navigate('CalibrateMicrophoneScreen')}>
+                        {/* <Icon name='start' /> */}
+                        <Text>Calibrate Microphone</Text>
                     </Button>
                 </Content>
             </Container>
