@@ -23,6 +23,7 @@ import { Button, Container, Content, List, ListItem, Header, Left, Right, Icon, 
 // import { Stopwatch, Timer } from 'react-native-stopwatch-timer'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
+const stagingPool = []
 
 export default class TimerScreen extends Component {
     constructor(props) {
@@ -34,7 +35,7 @@ export default class TimerScreen extends Component {
             timerReset: false,
             tickTimes: [],
             newTicktimes: [],
-            timerDelay: 'timerDelay5',
+            timerDelay: 'timerDelay1',
             autoStop: 'autoStop0',
             toggleCountdown: false,
             toggleAutoStop: false,
@@ -43,7 +44,12 @@ export default class TimerScreen extends Component {
             counter: 0,
             recording: false,
             toggleNavMenu: false,
+            showToast: false,
+            toggleDownloadShotTimes: false,
+            completeTimeObject: '',
         };
+
+        // const stagingPool = []
 
         this.testButton = this.testButton.bind(this)
         this.stopRecording = this.stopRecording.bind(this)
@@ -51,7 +57,6 @@ export default class TimerScreen extends Component {
 
     componentDidMount() {
         console.log('DONEDIDHERDIDMOUNT', this.props)
-        // const { navigate } = this.props.navigation;
 
         let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
 
@@ -91,11 +96,11 @@ export default class TimerScreen extends Component {
 
     }
     componentDidUpdate() {
-        // console.log('DONE DID UPDATE', this.props.navigation.state.params.highestSoundLevel)
+        console.log('DONE DID UPDATE', this.state)
     }
 
 
-
+    // ############## START THE SHOT TIMER ##############
     startButton = () => {
         {
             this.state.timerDelay.replace(/\D/g, '') > 0 ?
@@ -104,12 +109,13 @@ export default class TimerScreen extends Component {
         }
     }
 
+    // ############## GETS CALLED INSIDE THE COUNTDOWN TIMER (SECONDTICK) TO RENDER SOUND ON ALL BUT THE LAST TICK! ##############
     handleTickSound = (elapsedSecs, totalSecs) => {
         console.log(this.state, totalSecs, 'yolololo')
         { elapsedSecs == totalSecs || elapsedSecs == 0 ? undefined : this.state.countDown.play() }
 
     }
-
+    // ############## HANDLES THE TEXT THAT IS DISPLAYED INSIDE THE COUNTDOWN TIMER ##############
     secondTick = (elapsedSecs, totalSecs) => {
         this.handleTickSound(elapsedSecs, totalSecs)
         return this.state.timerDelay.replace(/\D/g, '') == 100 ? '' : (totalSecs - elapsedSecs).toString()
@@ -117,7 +123,7 @@ export default class TimerScreen extends Component {
         // return (totalSecs - elapsedSecs).toString()
     }
 
-
+    // ############## GETS CALLED TO PLAY THE AIR HORN SOUND STOPPING THE TIMER AND STARTING THE SHOT RECORDING ##############
     testButton() {
 
         this.state.airHornSound.play((success) => {
@@ -133,6 +139,7 @@ export default class TimerScreen extends Component {
 
         this.setState({ toggleCountdown: false, toggleAutoStop: true })
 
+        // ############## START LISTENING FOR SHOTS ##############
         AudioRecorder.startRecording();
         AudioRecorder.onProgress = data => {
             this.setState({ recording: true })
@@ -142,7 +149,8 @@ export default class TimerScreen extends Component {
             //     data.currentTime
             // )
 
-            if (this.props.navigation.state.params.highestSoundLevel !== undefined) {
+            // ############## IF THEY CALIBRATED USE THAT NUMBER TO DETERMINE IF NOISE INCOMING IS LOUD ENOUGH FOR A SHOT ##############
+            if (this.props.navigation.state.params !== undefined) {
 
                 if (data.currentMetering > this.props.navigation.state.params.highestSoundLevel) {
                     this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
@@ -150,6 +158,7 @@ export default class TimerScreen extends Component {
                     })
                 }
             } else {
+                // ############## OTHERWISE STICK WITH BASE NUMBER ##############
                 data.currentMetering > 0 ? this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
                     console.log(this.state)
                 }) : undefined
@@ -162,11 +171,12 @@ export default class TimerScreen extends Component {
 
     stopRecording() {
         AudioRecorder.stopRecording();
-        this.setState({ recording: false, toggleAutoStop: false })
-        console.log('STOPPED, LOOGED THESE TIMES', this.state.newTicktimes)
+        this.setState({ recording: false, toggleAutoStop: false, toggleCountdown: false, toggleDownloadShotTimes: true })
+        console.log('STOPPED, STAGINGPOOL', stagingPool)
+
     }
 
-
+    // ############## HANDLE MENU CHANGE FOR SETTINGS ##############
     onValueChange(value) {
         {
             value.replace(/\d/g, '') == 'autoStop' ?
@@ -197,15 +207,41 @@ export default class TimerScreen extends Component {
     showMenu = () => {
         this.menu.show();
     };
-
+    // ############## NAVIGATION ##############
     onDrillScreenPress = () => {
         this.props.navigation.navigate('RandomDrillScreen')
         this.hideMenu()
     }
-
+    // ############## NAVIGATION ##############
     onCalibratePress = () => {
         this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
+    }
+
+    updateHome = (timeObject) => {
+        console.log('LOOK HERE DUMMY', timeObject)
+        stagingPool = timeObject
+    }
+
+    saveResultList = () => {
+        try {
+            await AsyncStorage.setItem('GavinsShotTimer:Data', stagingPool);
+        } catch (error) {
+            console.log('error saving data')
+        }
+    }
+
+    fetchSavedShotLists = () => {
+
+        try {
+            const value = await AsyncStorage.getItem('@MySuperStore:key');
+            if (value !== null) {
+                // We have data!!
+                console.log(value);
+            }
+        } catch (error) {
+            console.log('error fetching any data')
+        }
     }
 
 
@@ -214,7 +250,11 @@ export default class TimerScreen extends Component {
 
         // const { navigate } = this.props.navigation
         return (
-            <View style={{ marginTop: 20 }}>
+            <View style={{
+                marginTop: 20,
+                flex: 1,
+                position: 'relative'
+            }}>
 
                 <Header style={{ backgroundColor: 'black' }}>
                     <Left>
@@ -243,55 +283,85 @@ export default class TimerScreen extends Component {
 
 
                 {/* <Content> */}
-                <Text>Timer Delay</Text>
-                <Form style={{
-                    alignContent: 'center',
-                    justifyContent: 'center'
-                }}>
+                <View style={{ flexDirection: 'row' }}>
 
-                    <Picker
-                        iosHeader="Select one"
-                        mode="dropdown"
-                        selectedValue={this.state.timerDelay}
-                        onValueChange={this.onValueChange.bind(this)}
-                    >
-                        <Item label="No Delay" value="timerDelay0" />
-                        <Item label="Random" value="timerDelay100" />
-                        <Item label="1 Second" value="timerDelay1" />
-                        <Item label="2 Seconds" value="timerDelay2" />
-                        <Item label="3 Seconds" value="timerDelay3" />
-                        <Item label="4 Seconds" value="timerDelay4" />
-                        <Item label="5 Seconds" value="timerDelay5" />
-                        <Item label="10 Seconds" value="timerDelay10" />
-                        <Item label="15 Seconds" value="timerDelay15" />
-                        <Item label="20 Seconds" value="timerDelay20" />
-                        <Item label="30 Seconds" value="timerDelay30" />
-                    </Picker>
-                    <Button style={{ alignSelf: 'flex-start' }} transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                        <Icon name='help' />
-                    </Button>
-                </Form>
-                <Text>Automatic Timer Stop</Text>
-                <Form>
 
-                    <Picker
-                        iosHeader="Select one"
-                        mode="dropdown"
-                        selectedValue={this.state.autoStop}
-                        onValueChange={this.onValueChange.bind(this)}
-                    >
-                        <Item label="None" value="autoStop0" />
-                        <Item label="5 Seconds" value="autoStop5" />
-                        <Item label="10 Seconds" value="autoStop10" />
-                        <Item label="15 Seconds" value="autoStop15" />
-                        <Item label="20 Seconds" value="autoStop20" />
-                        <Item label="30 Seconds" value="autoStop30" />
-                    </Picker>
-                </Form>
+                    <Form >
+                        <Text >Timer Delay</Text>
+                        <Picker
+                            iosHeader="Select one"
+                            mode="dropdown"
+                            selectedValue={this.state.timerDelay}
+                            onValueChange={this.onValueChange.bind(this)}
+                        >
+                            <Item label="No Delay" value="timerDelay0" />
+                            <Item label="Random" value="timerDelay100" />
+                            <Item label="1 Second" value="timerDelay1" />
+                            <Item label="2 Seconds" value="timerDelay2" />
+                            <Item label="3 Seconds" value="timerDelay3" />
+                            <Item label="4 Seconds" value="timerDelay4" />
+                            <Item label="5 Seconds" value="timerDelay5" />
+                            <Item label="10 Seconds" value="timerDelay10" />
+                            <Item label="15 Seconds" value="timerDelay15" />
+                            <Item label="20 Seconds" value="timerDelay20" />
+                            <Item label="30 Seconds" value="timerDelay30" />
+                        </Picker>
+
+                    </Form>
+                    <Icon style={{ marginRight: 20 }} name='help' onPress={() => Toast.show({
+                        text: 'Timer Delay will start a countdown based on the time you choose. At the end of the countdown gunshot recording will begin so you don\'t have to worry about pushing start.',
+                        position: 'bottom',
+                        buttonText: 'Nice',
+                        duration: 10000,
+                    })} />
+
+                    <Form>
+                        <Text>Automatic Timer Stop</Text>
+
+                        <Picker
+                            iosHeader="Select one"
+                            mode="dropdown"
+                            selectedValue={this.state.autoStop}
+                            onValueChange={this.onValueChange.bind(this)}
+                        >
+                            <Item label="None" value="autoStop0" />
+                            <Item label="5 Seconds" value="autoStop5" />
+                            <Item label="10 Seconds" value="autoStop10" />
+                            <Item label="15 Seconds" value="autoStop15" />
+                            <Item label="20 Seconds" value="autoStop20" />
+                            <Item label="30 Seconds" value="autoStop30" />
+                        </Picker>
+                    </Form>
+
+                    <Icon style={{ marginLeft: 20 }} name='help' onPress={() => Toast.show({
+                        text: 'Automatic Timer Stop will turn off gunshot recording at the specified time just in case you can\'t push stop!',
+                        position: 'bottom',
+                        buttonText: 'Awesome',
+                        duration: 10000,
+                    })} />
+
+                </View>
                 {/* </Content> */}
 
 
-                {/* COUNTDOWN CIRCLE OTHERWISE START BUTTON */}
+                {/* CONDITIONAL BUTTON TO ONLY SHOW WHEN COUNTDOWN ISN'T SHOWING */}
+                <View style={{ flexDirection: 'row' }}>
+                    {
+                        this.state.toggleCountdown ?
+                            undefined
+                            : <Button style={{ flex: 2, margin: 10 }} block onPress={this.startButton}>
+                                {/* <Icon name='start' /> */}
+                                <Text>Start</Text>
+                            </Button>
+                    }
+
+                    <Button style={{ flex: 2, margin: 10 }} block onPress={this.stopRecording}>
+                        {/* <Icon name='start' /> */}
+                        <Text>Stop</Text>
+                    </Button>
+                </View>
+
+                {/* SHOW COUNTDOWN OUTSIDE THE ROW VIEW ABOVE */}
                 {this.state.toggleCountdown ?
                     <CountdownCircle
                         seconds={this.state.timerDelay.replace(/\D/g, '') == 100 ? Math.floor(Math.random() * Math.floor(30)) : this.state.timerDelay.replace(/\D/g, '')}
@@ -302,44 +372,39 @@ export default class TimerScreen extends Component {
                         updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
                         onTimeElapsed={this.testButton}
-                    /> : <Button style={{ margin: 20 }} block onPress={this.startButton}>
-                        {/* <Icon name='start' /> */}
-                        <Text>Start</Text>
-                    </Button>}
-
-                <Button style={{ margin: 20 }} block onPress={this.stopRecording}>
-                    {/* <Icon name='start' /> */}
-                    <Text>STOP</Text>
-                </Button>
+                    /> : undefined}
 
 
                 {/* SHOW RECORDING TEXT IF RECORDING */}
-                {this.state.recording ?
-                    <Text>RECORDING!!!</Text> : undefined}
+                {
+                    this.state.recording ?
+                        <Text>RECORDING!!!</Text> : undefined
+                }
 
                 {/* IF TIMER DELAY SHOW NEW COUNTDOWN CLOCK THEN START RECORDING */}
-                {this.state.toggleAutoStop && this.state.autoStop.replace(/\D/g, '') > 0 ?
-                    // <Content>
-                    <View>
+                {
+                    this.state.toggleAutoStop && this.state.autoStop.replace(/\D/g, '') > 0 ?
+                        // <Content>
+                        <View>
 
-                        <Text>Automatic Stop In..</Text>
-                        <CountdownCircle
-                            seconds={this.state.autoStop.replace(/\D/g, '')}
-                            radius={30}
-                            borderWidth={8}
-                            color="#ff003f"
-                            bgColor="#fff"
-                            // updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
-                            textStyle={{ fontSize: 20 }}
-                            onTimeElapsed={this.stopRecording}
-                        />
-                    </View>
-                    // </Content>
-                    : undefined
+                            <Text>Automatic Stop In..</Text>
+                            <CountdownCircle
+                                seconds={this.state.autoStop.replace(/\D/g, '')}
+                                radius={30}
+                                borderWidth={8}
+                                color="#ff003f"
+                                bgColor="#fff"
+                                // updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
+                                textStyle={{ fontSize: 20 }}
+                                onTimeElapsed={this.stopRecording}
+                            />
+                        </View>
+                        // </Content>
+                        : undefined
                 }
 
                 {/* FORMATTED SHOT LIST */}
-                <ShotList tickTimes={this.state.newTicktimes} />
+                <ShotList updateHome={this.updateHome} tickTimes={this.state.newTicktimes} />
 
             </View >
         );
