@@ -5,6 +5,7 @@ import {
     Text,
     View, StatusBar
 } from 'react-native';
+import { Root } from "native-base";
 import { Button, Icon, Container, Content } from 'native-base'
 import TimerComponent from '../Components/timer'
 import styles from './Styles/app_style'
@@ -28,11 +29,11 @@ export default class App extends Component {
             //     </Content>
             // </Container>
             <Container>
-
-                <Navigation />
+                <Root>
+                    <Navigation />
+                </Root>
             </Container>
         );
     }
 }
-
 
