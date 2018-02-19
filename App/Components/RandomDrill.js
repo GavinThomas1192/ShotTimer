@@ -64,6 +64,10 @@ export default class RandomDrill extends Component {
         this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
     }
+    onHistoryPress = () => {
+        this.props.navigation.navigate('CalibrateMicrophoneScreen')
+        this.hideMenu()
+    }
     render() {
 
         return (
@@ -87,6 +91,7 @@ export default class RandomDrill extends Component {
                         >
                             {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
                             <MenuItem onPress={() => this.onShotTimerPress(this.props.navigation)}>Shot Timer</MenuItem>
+                            <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
                             <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
                         </Menu>
                     </Right>

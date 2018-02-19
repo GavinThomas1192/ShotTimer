@@ -5,7 +5,7 @@ import {
     StyleSheet,
     StatusBar,
     TouchableHighlight,
-    Platform
+    Platform, AsyncStorage
 } from "react-native";
 import styles from './Styles/timer_styles'
 import KeepAwake from "react-native-keep-awake";
@@ -45,7 +45,7 @@ export default class TimerScreen extends Component {
             recording: false,
             toggleNavMenu: false,
             showToast: false,
-            toggleDownloadShotTimes: false,
+            toggleDownloadShotTimes: true,
             completeTimeObject: '',
         };
 
@@ -217,6 +217,10 @@ export default class TimerScreen extends Component {
         this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
     }
+    onHistoryPress = () => {
+        this.props.navigation.navigate('HistoryScreen')
+        this.hideMenu()
+    }
 
     updateHome = (timeObject) => {
         console.log('LOOK HERE DUMMY', timeObject)
@@ -224,20 +228,42 @@ export default class TimerScreen extends Component {
     }
 
     saveResultList = () => {
+        let currentTime = new Date().toLocaleString()
         try {
-            await AsyncStorage.setItem('GavinsShotTimer:Data', stagingPool);
+            AsyncStorage.setItem(currentTime.toString(), JSON.stringify(stagingPool)).then(() => {
+
+                console.log('saved data!', JSON.stringify(stagingPool), 'to this date', currentTime)
+                this.setState({ toggleDownloadShotTimes: false }, function () {
+
+                    Toast.show({
+                        supportedOrientations: ['portrait', 'landscape'],
+                        text: `Saved Shot Data!`,
+                        position: 'bottom',
+                        buttonText: 'Dismiss',
+                        duration: 5000,
+                    });
+                })
+            })
+
         } catch (error) {
             console.log('error saving data')
+            Toast.show({
+                supportedOrientations: ['portrait', 'landscape'],
+                text: `Whoops! I wasn't able to save your data.`,
+                position: 'bottom',
+                buttonText: 'Dismiss',
+                duration: 5000,
+            });
         }
     }
 
     fetchSavedShotLists = () => {
 
         try {
-            const value = await AsyncStorage.getItem('@MySuperStore:key');
+            const value = AsyncStorage.getItem('GavinsShotTimer:Data');
             if (value !== null) {
                 // We have data!!
-                console.log(value);
+                console.log('DATA FETCHED!!', JSON.parse(value));
             }
         } catch (error) {
             console.log('error fetching any data')
@@ -274,7 +300,7 @@ export default class TimerScreen extends Component {
                             style={{ alignSelf: 'flex-end' }}
                         >
                             {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
-
+                            <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
                             <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
                         </Menu>
                     </Right>
@@ -401,6 +427,14 @@ export default class TimerScreen extends Component {
                         </View>
                         // </Content>
                         : undefined
+                }
+
+                {stagingPool.length > 0 && !this.state.recording && this.state.toggleDownloadShotTimes ?
+
+                    <Button style={{ margin: 20 }} block onPress={this.saveResultList}>
+                        {/* <Icon name='start' /> */}
+                        <Text>Save Record</Text>
+                    </Button> : undefined
                 }
 
                 {/* FORMATTED SHOT LIST */}
