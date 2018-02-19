@@ -15,7 +15,7 @@ import styles from './Styles/shotList_styles'
 
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
-
+let stagingTimeNames = []
 
 export default class HistoryScreen extends Component {
     constructor(props) {
@@ -24,23 +24,29 @@ export default class HistoryScreen extends Component {
             fetchedShotListData: '',
             test: '',
             toggleShowSpecificTimes: false,
+            listTimes: [],
+            currentList: '',
 
         }
     }
 
     componentDidMount() {
+
         console.log('historyDidMount', this.state)
-        AsyncStorage.getAllKeys().then((value) => {
-            console.log('all keys fetched!!', value);
-            value.forEach(ele => {
-                AsyncStorage.getItem(ele).then((response) => {
-                    let concatedObject = { [ele.toString()]: JSON.parse(response) }
-                    console.log('concated object!', concatedObject)
-                    this.setState({ fetchedShotListData: [...this.state.fetchedShotListData, [concatedObject]], test: concatedObject })
-                    console.log('state after ele update', this.state)
+
+        this.state.listTimes.length === 0 ?
+            AsyncStorage.getAllKeys().then((value) => {
+                console.log('all keys fetched!!', value);
+                AsyncStorage.multiGet(value).then((response) => {
+                    console.log('multi get response', response)
+                    this.setState({ listTimes: response }, function () {
+                        console.log('state after fetching old data', this.state)
+                    })
                 })
             })
-        }).catch((err) => console.log(err))
+
+                .catch((err) => console.log(err))
+            : undefined
 
 
 
@@ -95,11 +101,18 @@ export default class HistoryScreen extends Component {
         this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
     }
-    toggleShowSpecificTimes = () => {
-        this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes })
+
+
+    handleShowtimes = (ele) => {
+        this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes, currentList: ele, }, function () {
+            console.log('togglin', ele)
+            // JSON.parse(ele[1])
+            console.log(JSON.parse((ele[1])))
+        })
+
     }
+
     render() {
-        const stagingTimeNames = []
         return (
             <ScrollView style={{ marginTop: 20 }}>
                 <Header style={{ backgroundColor: 'black' }}>
@@ -145,43 +158,37 @@ export default class HistoryScreen extends Component {
                     <CardItem>
                         <Body>
 
-                            {this.state.fetchedShotListData !== '' ?
 
 
-                                this.state.fetchedShotListData.map(ele => {
-                                    console.log('need to console these eles to see whats going on', ele, )
-                                    return ele.map(secondEle => {
+                            {this.state.listTimes.length > 0 ?
+                                this.state.listTimes.map(ele => {
+                                    console.log('down at bottom ', ele)
+                                    return <CardItem>
 
-                                        stagingTimeNames.push(Object.keys(secondEle))
+                                        <Text>{ele[0]}</Text>
+                                        <Right>
+                                            <Icon onPress={() => this.handleShowtimes(ele)} name="arrow-forward" />
+                                        </Right>
 
-                                        console.log('secondele', secondEle, Object.keys(secondEle))
+                                    </CardItem>
 
-                                        return Object.values(secondEle).map(thirdEle => {
-                                            console.log('THIRD', Object.entries(thirdEle))
-
-                                            return Object.entries(thirdEle).map(fourthEle => {
-                                                console.log('fourth!', fourthEle[1].shotTime)
-
-
-                                                return this.state.toggleShowSpecificTimes ?
-                                                    <Text> Initial: {fourthEle[1].shotTime} Difference: {fourthEle[1].shotDifference}-seconds.</Text>
-                                                    : undefined
-
-
-                                            })
-                                        })
-
-
-                                    })
                                 })
-                                : <Text>Nothing yet</Text>}
+                                : undefined}
 
-                            {stagingTimeNames.map(ele => {
-                                return <Button style={{ margin: 30 }} block onPress={() => { this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes }) }}>
-                                    <Text>{ele}</Text>
-                                </Button>
 
-                            })}
+                            {this.state.currentList !== '' ?
+                                <CardItem>
+                                    {JSON.parse(this.state.currentList[1]).map(ele => {
+                                        return <CardItem>
+
+                                            <Text>Time: {ele.shotTime}</Text>
+                                            <Text>Differnce: {ele.shotDifference}</Text>
+                                        </CardItem>
+                                    })}
+                                    {/* < Text > {this.state.currentList[1]}</Text> */}
+
+
+                                </CardItem> : undefined}
 
                         </Body>
                     </CardItem>
@@ -190,7 +197,7 @@ export default class HistoryScreen extends Component {
                     </CardItem>
                 </Card>
 
-            </ScrollView>
+            </ScrollView >
         );
     }
 }
