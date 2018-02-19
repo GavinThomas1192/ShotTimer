@@ -5,7 +5,8 @@ import {
     StyleSheet,
     StatusBar,
     TouchableHighlight,
-    AsyncStorage
+    AsyncStorage,
+    ScrollView,
 } from "react-native";
 import { Button, Container, Content, Card, CardItem, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer } from 'native-base'
 import styles from './Styles/shotList_styles'
@@ -22,6 +23,7 @@ export default class HistoryScreen extends Component {
         this.state = {
             fetchedShotListData: '',
             test: '',
+            toggleShowSpecificTimes: false,
 
         }
     }
@@ -93,10 +95,13 @@ export default class HistoryScreen extends Component {
         this.props.navigation.navigate('CalibrateMicrophoneScreen')
         this.hideMenu()
     }
+    toggleShowSpecificTimes = () => {
+        this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes })
+    }
     render() {
-
+        const stagingTimeNames = []
         return (
-            <Container style={{ marginTop: 20 }}>
+            <ScrollView style={{ marginTop: 20 }}>
                 <Header style={{ backgroundColor: 'black' }}>
                     <Left>
                         <Button transparent onPress={this.handleBackArrow}>
@@ -142,9 +147,13 @@ export default class HistoryScreen extends Component {
 
                             {this.state.fetchedShotListData !== '' ?
 
+
                                 this.state.fetchedShotListData.map(ele => {
-                                    console.log('need to console these eles to see whats going on', ele)
+                                    console.log('need to console these eles to see whats going on', ele, )
                                     return ele.map(secondEle => {
+
+                                        stagingTimeNames.push(Object.keys(secondEle))
+
                                         console.log('secondele', secondEle, Object.keys(secondEle))
 
                                         return Object.values(secondEle).map(thirdEle => {
@@ -152,8 +161,12 @@ export default class HistoryScreen extends Component {
 
                                             return Object.entries(thirdEle).map(fourthEle => {
                                                 console.log('fourth!', fourthEle[1].shotTime)
-                                                // < Text > { fourthEle[1].shotTime }</Text>
-                                                return <Text> {fourthEle[1].shotTime} {fourthEle[1].shotDifference}</Text>
+
+
+                                                return this.state.toggleShowSpecificTimes ?
+                                                    <Text> Initial: {fourthEle[1].shotTime} Difference: {fourthEle[1].shotDifference}-seconds.</Text>
+                                                    : undefined
+
 
                                             })
                                         })
@@ -163,6 +176,12 @@ export default class HistoryScreen extends Component {
                                 })
                                 : <Text>Nothing yet</Text>}
 
+                            {stagingTimeNames.map(ele => {
+                                return <Button style={{ margin: 30 }} block onPress={() => { this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes }) }}>
+                                    <Text>{ele}</Text>
+                                </Button>
+
+                            })}
 
                         </Body>
                     </CardItem>
@@ -171,7 +190,7 @@ export default class HistoryScreen extends Component {
                     </CardItem>
                 </Card>
 
-            </Container>
+            </ScrollView>
         );
     }
 }
