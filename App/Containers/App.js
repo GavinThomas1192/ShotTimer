@@ -23,11 +23,7 @@ export default class App extends Component {
     render() {
         console.disableYellowBox = true;
         return (
-            // <Container style={styles.container}>
-            //     <Content>
-            //         <TimerComponent />
-            //     </Content>
-            // </Container>
+
             <Container>
                 <Root>
                     <Navigation />
