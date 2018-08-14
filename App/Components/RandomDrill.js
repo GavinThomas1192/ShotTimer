@@ -24,7 +24,6 @@ export default class RandomDrill extends Component {
     }
 
     componentDidMount() {
-        console.log('didMount', this.props.tickTimes)
 
     }
 

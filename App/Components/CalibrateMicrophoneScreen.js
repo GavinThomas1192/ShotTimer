@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import {
-    View,
-
-    StyleSheet,
-    StatusBar,
-    TouchableHighlight
+    AsyncStorage,
 } from "react-native";
 import { Container, Header, Content, Card, CardItem, Text, Body, Left, Button, Icon, Right, Title } from 'native-base';
 
@@ -20,11 +16,17 @@ export default class CalibrateMicrophoneScreen extends Component {
         super(props);
         this.state = {
             currentSoundLevel: 'none',
-            highestSoundLevel: -20
+            highestSoundLevel: -100,
+            previousSoundCalibration: null
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+      const previousSoundCalibration = await AsyncStorage.getItem('SHOT_TIMER_CALIBRATION')
+      console.log(previousSoundCalibration)
+      this.setState({
+        previousSoundCalibration: JSON.parse(previousSoundCalibration)
+      })
         let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
 
         AudioRecorder.prepareRecordingAtPath(audioPath, {
@@ -37,25 +39,22 @@ export default class CalibrateMicrophoneScreen extends Component {
     }
 
     startCalibration = () => {
+      AudioRecorder.startRecording();
+      AudioRecorder.onProgress = data => {
+          let highLevel;
+          let decibels = data.currentMetering.toFixed(3);
 
-        // this.setState({ toggleCountdown: false, toggleAutoStop: true })
-
-        AudioRecorder.startRecording();
-        AudioRecorder.onProgress = data => {
-            let highLevel;
-            let decibels = data.currentMetering.toFixed(3);
-
-            this.setState({ recording: true, currentSoundLevel: decibels })
-
-            { this.state.currentSoundLevel > this.state.highestSoundLevel ? this.setState({ highestSoundLevel: decibels }) : undefined }
-
-        };
+          this.setState({ recording: true, currentSoundLevel: decibels, 
+            highestSoundLevel: decibels > this.state.highestSoundLevel ? 
+              decibels : this.state.highestSoundLevel})
+      };
     }
 
-    stopCalibration = () => {
+    stopCalibration = async () => {
         AudioRecorder.stopRecording();
         this.setState({ recording: false, })
-        this.props.navigation.navigate('TimerScreen', { highestSoundLevel: this.state.highestSoundLevel })
+        AsyncStorage.setItem('SHOT_TIMER_CALIBRATION', JSON.stringify(this.state.highestSoundLevel))
+        this.props.navigation.navigate('TimerScreen')
 
     }
 
@@ -83,7 +82,7 @@ export default class CalibrateMicrophoneScreen extends Component {
         this.hideMenu()
     }
     render() {
-
+      const {previousSoundCalibration, recording, currentSoundLevel, highestSoundLevel} = this.state
         return (
             <Container>
                 <Header style={{ backgroundColor: 'black' }}>
@@ -132,17 +131,19 @@ export default class CalibrateMicrophoneScreen extends Component {
                         </CardItem>
                     </Card>
 
-                    {this.state.recording ?
+                    {recording ?
                         <Card>
                             <CardItem header>
                                 <Text>Sound Metering</Text>
                             </CardItem>
                             <CardItem>
                                 <Body>
+                                  {previousSoundCalibration && 
+                                    <Text>Previous Calibration Level {previousSoundCalibration}</Text>}
                                     <Text style={{ marginBottom: 10 }}>
-                                        Current Sound {this.state.currentSoundLevel}</Text>
+                                        Current Sound {currentSoundLevel}</Text>
                                     <Text>
-                                        Highest Sound {this.state.highestSoundLevel}</Text>
+                                        Highest Sound {highestSoundLevel}</Text>
                                 </Body>
                             </CardItem>
                             <CardItem footer>
@@ -165,11 +166,6 @@ export default class CalibrateMicrophoneScreen extends Component {
                         {/* <Icon name='start' /> */}
                         <Text>testing</Text>
                     </Button>
-
-
-
-                    {this.state.highestSoundLevel !== -20 ?
-                        <Text>Saved!</Text> : undefined}
 
                 </Content>
             </Container>

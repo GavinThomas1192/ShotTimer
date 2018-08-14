@@ -24,16 +24,12 @@ export default class ShotList extends Component {
     }
 
     componentDidMount() {
-        console.log('didMount', this.props.tickTimes)
 
         this.setState({ shotTimes: this.props.tickTimes })
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log('nextProps', nextProps)
         this.setState({ shotTimes: nextProps.tickTimes })
-        console.log('state after nextProps', this.state)
-        // this.props.updateHome(stagingPool)
     }
 
     componentDidUpdate() {
@@ -42,9 +38,6 @@ export default class ShotList extends Component {
     render() {
         const stagingPool = []
         return (
-            // <Container>
-            // <View >
-
             <ScrollView
                 ref={listView => { this.listView = listView; }}
             >
@@ -68,9 +61,6 @@ export default class ShotList extends Component {
                         this.props.updateHome(stagingPool)
 
                         // this.setState({ completeTimeObject: [...this.state.completeTimeObject, [concatedObject]] })
-
-                        console.log('YOLOBATMONKEYS', stagingPool)
-
 
                         return <ListItem style={styles.timeText}>
                             <Text>{"Shot " + (index + 1) + " @ " + ele.toFixed(3) + "."}</Text>

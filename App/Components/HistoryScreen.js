@@ -76,9 +76,6 @@ export default class HistoryScreen extends Component {
 
   handleShowtimes = (ele) => {
     this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes, currentList: ele, }, function () {
-      console.log('togglin', ele)
-      // JSON.parse(ele[1])
-      console.log(JSON.parse((ele[1])))
     })
 
   }
@@ -131,7 +128,6 @@ export default class HistoryScreen extends Component {
             <Body>
               {!!previousRecords && previousRecords.length > 0 &&
                 previousRecords.map((ele, index) => {
-                  console.log(ele)
                   return <CardItem key={index}>
                     <Text>{ele.Date}</Text>
                     {ele.ShotRecord.map((shotRecord, index) => {

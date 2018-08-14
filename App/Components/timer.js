@@ -2,16 +2,10 @@ import React, { Component } from "react";
 import {
     View,
     Text,
-    StyleSheet,
-    StatusBar,
-    TouchableHighlight,
-    Platform, AsyncStorage
+    AsyncStorage
 } from "react-native";
-import styles from './Styles/timer_styles'
-import KeepAwake from "react-native-keep-awake";
+
 import ShotList from './shotList'
-import moment from "moment";
-import SideBar from './SideBar'
 import Sound from 'react-native-sound'
 
 import CountdownCircle from 'react-native-countdown-circle'
@@ -30,7 +24,6 @@ export default class TimerScreen extends Component {
 
         super(props);
         this.state = {
-
             totalDuration: 90000,
             timerReset: false,
             tickTimes: [],
@@ -48,71 +41,56 @@ export default class TimerScreen extends Component {
             toggleDownloadShotTimes: true,
             completeTimeObject: '',
         };
-
-        // const stagingPool = []
-
-        this.testButton = this.testButton.bind(this)
         this.stopRecording = this.stopRecording.bind(this)
     }
 
-    componentDidMount() {
-        console.log('DONEDIDHERDIDMOUNT', this.props)
+    async componentDidMount() {
+      const highestSoundCalibration = await AsyncStorage.getItem('SHOT_TIMER_CALIBRATION')
+      this.setState({
+        highestSoundCalibration: JSON.parse(highestSoundCalibration)
+      })
+      let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
+      AudioRecorder.prepareRecordingAtPath(audioPath, {
+          SampleRate: 22050,
+          Channels: 1,
+          AudioQuality: "Low",
+          AudioEncoding: "aac",
+          MeteringEnabled: true,
+      });
 
-        let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
+      Sound.setCategory('Playback');
+      // Load the sound file 'whoosh.mp3' from the app bundle
+      // See notes below about preloading sounds within initialization code below.
+      let GetAirHornSound = new Sound('sport_air_horn_blast.mp3', Sound.MAIN_BUNDLE, (error) => {
+          if (error) {
+              return;
+          }
+          // loaded successfully
+          this.setState({ airHornSound: GetAirHornSound })
+      });
 
-        AudioRecorder.prepareRecordingAtPath(audioPath, {
-            SampleRate: 22050,
-            Channels: 1,
-            AudioQuality: "Low",
-            AudioEncoding: "aac",
-            MeteringEnabled: true,
-        });
-
-        Sound.setCategory('Playback');
-
-        // Load the sound file 'whoosh.mp3' from the app bundle
-        // See notes below about preloading sounds within initialization code below.
-        let GetAirHornSound = new Sound('sport_air_horn_blast.mp3', Sound.MAIN_BUNDLE, (error) => {
-            if (error) {
-                console.log('failed to load the sound', error);
-                return;
-            }
-            // loaded successfully
-            console.log('duration in seconds: ' + GetAirHornSound.getDuration() + 'number of channels: ' + GetAirHornSound.getNumberOfChannels());
-            this.setState({ airHornSound: GetAirHornSound })
-        });
-
-        let GetCountDown = new Sound('ticking_countdown.mp3', Sound.MAIN_BUNDLE, (error) => {
-            if (error) {
-                console.log('failed to load the sound', error);
-                return;
-            }
-            // loaded successfully
-            console.log('duration in seconds: ' + GetCountDown.getDuration() + 'number of channels: ' + GetCountDown.getNumberOfChannels());
-            this.setState({ countDown: GetCountDown })
-        });
-
-        // Play the sound with an onEnd callback
-
+      let GetCountDown = new Sound('ticking_countdown.mp3', Sound.MAIN_BUNDLE, (error) => {
+          if (error) {
+              return;
+          }
+          // loaded successfully
+          this.setState({ countDown: GetCountDown })
+      });
     }
-    componentDidUpdate() {
-        console.log('DONE DID UPDATE', this.state)
-    }
-
+    
 
     // ############## START THE SHOT TIMER ##############
     startButton = () => {
         {
             this.state.timerDelay.replace(/\D/g, '') > 0 ?
                 this.setState({ toggleCountdown: true })
-                : this.testButton()
+                : this.startRecordingShots()
         }
     }
 
     // ############## GETS CALLED INSIDE THE COUNTDOWN TIMER (SECONDTICK) TO RENDER SOUND ON ALL BUT THE LAST TICK! ##############
     handleTickSound = (elapsedSecs, totalSecs) => {
-        console.log(this.state, totalSecs, 'yolololo')
-        { elapsedSecs == totalSecs || elapsedSecs == 0 ? undefined : this.state.countDown.play() }
+        { elapsedSecs == totalSecs ? undefined : this.state.countDown.play() }
 
     }
     // ############## HANDLES THE TEXT THAT IS DISPLAYED INSIDE THE COUNTDOWN TIMER ##############
@@ -124,55 +102,42 @@ export default class TimerScreen extends Component {
     }
 
     // ############## GETS CALLED TO PLAY THE AIR HORN SOUND STOPPING THE TIMER AND STARTING THE SHOT RECORDING ##############
-    testButton() {
+    startRecordingShots = async () => {
+      const {highestSoundCalibration} = this.state
+      this.state.countDown.stop()
+      this.state.airHornSound.play((success) => {
+          if (success) {
+          } else {
+            this.state.airHornSound.reset()
+          }
+      });
 
-        this.state.airHornSound.play((success) => {
-            if (success) {
-                console.log('successfully finished playing');
-            } else {
-                console.log('playback failed due to audio decoding errors');
-                // reset the player to its uninitialized state (android only)
-                // this is the only option to recover after an error occured and use the player again
-                this.state.airHornSound.reset();
-            }
-        });
+      this.setState({ toggleCountdown: false, toggleAutoStop: true })
 
-        this.setState({ toggleCountdown: false, toggleAutoStop: true })
+      // ############## START LISTENING FOR SHOTS ##############
+      AudioRecorder.startRecording();
+      AudioRecorder.onProgress = data => {
+          this.setState({ recording: true })
+          let decibels = Math.floor(data.currentMetering);
+          // console.log(
+          //     data.currentMetering,
+          //     data.currentTime
+          // )
 
-        // ############## START LISTENING FOR SHOTS ##############
-        AudioRecorder.startRecording();
-        AudioRecorder.onProgress = data => {
-            this.setState({ recording: true })
-            let decibels = Math.floor(data.currentMetering);
-            // console.log(
-            //     data.currentMetering,
-            //     data.currentTime
-            // )
-
-            // ############## IF THEY CALIBRATED USE THAT NUMBER TO DETERMINE IF NOISE INCOMING IS LOUD ENOUGH FOR A SHOT ##############
-            if (this.props.navigation.state.params !== undefined) {
-
-                if (data.currentMetering > this.props.navigation.state.params.highestSoundLevel) {
-                    this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
-                        console.log(this.state)
-                    })
-                }
-            } else {
-                // ############## OTHERWISE STICK WITH BASE NUMBER ##############
-                data.currentMetering > 0 ? this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime] }, function () {
-                    console.log(this.state)
-                }) : undefined
-            }
-
-
-
-        };
+          // ############## IF THEY CALIBRATED USE THAT NUMBER TO DETERMINE IF NOISE INCOMING IS LOUD ENOUGH FOR A SHOT ##############
+          !!highestSoundCalibration && decibels > highestSoundCalibration &&
+            this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime]})
+        
+          // ############## OTHERWISE STICK WITH BASE NUMBER ##############
+          !highestSoundCalibration && decibels > 0 &&
+            this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime]})
+      };
     }
 
     stopRecording() {
         AudioRecorder.stopRecording();
+        this.state.countDown.stop();
         this.setState({ recording: false, toggleAutoStop: false, toggleCountdown: false, toggleDownloadShotTimes: true })
-        console.log('STOPPED, STAGINGPOOL', stagingPool)
 
     }
 
@@ -223,19 +188,16 @@ export default class TimerScreen extends Component {
     }
 
     updateHome = (timeObject) => {
-        console.log('LOOK HERE DUMMY', timeObject)
         stagingPool = timeObject
     }
 
     saveResultList = () => {
         let currentTime = new Date().toLocaleString()
-        console.log(currentTime)
         const saveData = {'Date': currentTime, 'ShotRecord': stagingPool}
 
         try {
             AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(saveData)).then(() => {
 
-                console.log('saved data!', JSON.stringify(stagingPool), 'to this date', currentTime)
                 this.setState({ toggleDownloadShotTimes: false }, function () {
 
                     Toast.show({
@@ -249,7 +211,6 @@ export default class TimerScreen extends Component {
             })
 
         } catch (error) {
-            console.log('error saving data')
             Toast.show({
                 supportedOrientations: ['portrait', 'landscape'],
                 text: `Whoops! I wasn't able to save your data.`,
@@ -259,20 +220,6 @@ export default class TimerScreen extends Component {
             });
         }
     }
-
-    fetchSavedShotLists = () => {
-
-        try {
-            const value = AsyncStorage.getItem('GavinsShotTimer:Data');
-            if (value !== null) {
-                // We have data!!
-                console.log('DATA FETCHED!!', JSON.parse(value));
-            }
-        } catch (error) {
-            console.log('error fetching any data')
-        }
-    }
-
 
     render() {
         const Item = Picker.Item;
@@ -285,89 +232,89 @@ export default class TimerScreen extends Component {
                 position: 'relative'
             }}>
 
-                <Header style={{ backgroundColor: 'black' }}>
-                    <Left>
-                        <Button transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                            <Icon name='home' />
-                        </Button>
-                    </Left>
-                    <Body>
-                        <Title style={{ color: 'white' }}>Shot Timer</Title>
-                    </Body>
-                    <Right>
-                        <Button transparent onPress={this.showMenu}>
-                            <Icon name='settings' />
-                        </Button>
-                        <Menu
-                            ref={this.setMenuRef}
-                            style={{ alignSelf: 'flex-end' }}
-                        >
-                            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
-                            <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
-                            <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
-                        </Menu>
-                    </Right>
-                </Header>
+            <Header style={{ backgroundColor: 'black' }}>
+                <Left>
+                    <Button transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
+                        <Icon name='home' />
+                    </Button>
+                </Left>
+                <Body>
+                    <Title style={{ color: 'white' }}>Shot Timer</Title>
+                </Body>
+                <Right>
+                    <Button transparent onPress={this.showMenu}>
+                        <Icon name='settings' />
+                    </Button>
+                    <Menu
+                        ref={this.setMenuRef}
+                        style={{ alignSelf: 'flex-end' }}
+                    >
+                        {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+                        <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
+                        <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
+                    </Menu>
+                </Right>
+            </Header>
 
 
 
-                {/* <Content> */}
-                <View style={{ flexDirection: 'row' }}>
+            {/* <Content> */}
+            <View style={{ flexDirection: 'row' }}>
 
 
-                    <Form >
-                        <Text >Timer Delay</Text>
-                        <Picker
-                            iosHeader="Select one"
-                            mode="dropdown"
-                            selectedValue={this.state.timerDelay}
-                            onValueChange={this.onValueChange.bind(this)}
-                        >
-                            <Item label="No Delay" value="timerDelay0" />
-                            <Item label="Random" value="timerDelay100" />
-                            <Item label="1 Second" value="timerDelay1" />
-                            <Item label="2 Seconds" value="timerDelay2" />
-                            <Item label="3 Seconds" value="timerDelay3" />
-                            <Item label="4 Seconds" value="timerDelay4" />
-                            <Item label="5 Seconds" value="timerDelay5" />
-                            <Item label="10 Seconds" value="timerDelay10" />
-                            <Item label="15 Seconds" value="timerDelay15" />
-                            <Item label="20 Seconds" value="timerDelay20" />
-                            <Item label="30 Seconds" value="timerDelay30" />
-                        </Picker>
+                <Form >
+                    <Text >Timer Delay</Text>
+                    <Picker
+                        iosHeader="Select one"
+                        mode="dropdown"
+                        selectedValue={this.state.timerDelay}
+                        onValueChange={this.onValueChange.bind(this)}
+                    >
+                        <Item label="No Delay" value="timerDelay0" />
+                        <Item label="Random" value="timerDelay100" />
+                        <Item label="1 Second" value="timerDelay1" />
+                        <Item label="2 Seconds" value="timerDelay2" />
+                        <Item label="3 Seconds" value="timerDelay3" />
+                        <Item label="4 Seconds" value="timerDelay4" />
+                        <Item label="5 Seconds" value="timerDelay5" />
+                        <Item label="10 Seconds" value="timerDelay10" />
+                        <Item label="15 Seconds" value="timerDelay15" />
+                        <Item label="20 Seconds" value="timerDelay20" />
+                        <Item label="30 Seconds" value="timerDelay30" />
+                    </Picker>
 
-                    </Form>
-                    <Icon style={{ marginRight: 20 }} name='help' onPress={() => Toast.show({
-                        text: 'Timer Delay will start a countdown based on the time you choose. At the end of the countdown gunshot recording will begin so you don\'t have to worry about pushing start.',
-                        position: 'bottom',
-                        buttonText: 'Nice',
-                        duration: 10000,
-                    })} />
+                </Form>
+                <Icon style={{ marginRight: 20 }} name='help' onPress={() => Toast.show({
+                    text: 'Timer Delay will start a countdown based on the time you choose. At the end of the countdown gunshot recording will begin so you don\'t have to worry about pushing start.',
+                    position: 'bottom',
+                    buttonText: 'Nice',
+                    duration: 10000,
+                })} />
 
-                    <Form>
-                        <Text>Automatic Timer Stop</Text>
+                <Form>
+                    <Text>Automatic Timer Stop</Text>
 
-                        <Picker
-                            iosHeader="Select one"
-                            mode="dropdown"
-                            selectedValue={this.state.autoStop}
-                            onValueChange={this.onValueChange.bind(this)}
-                        >
-                            <Item label="None" value="autoStop0" />
-                            <Item label="5 Seconds" value="autoStop5" />
-                            <Item label="10 Seconds" value="autoStop10" />
-                            <Item label="15 Seconds" value="autoStop15" />
-                            <Item label="20 Seconds" value="autoStop20" />
-                            <Item label="30 Seconds" value="autoStop30" />
-                        </Picker>
-                    </Form>
+                    <Picker
+                        iosHeader="Select one"
+                        mode="dropdown"
+                        selectedValue={this.state.autoStop}
+                        onValueChange={this.onValueChange.bind(this)}
+                    >
+                        <Item label="None" value="autoStop0" />
+                        <Item label="5 Seconds" value="autoStop5" />
+                        <Item label="10 Seconds" value="autoStop10" />
+                        <Item label="15 Seconds" value="autoStop15" />
+                        <Item label="20 Seconds" value="autoStop20" />
+                        <Item label="30 Seconds" value="autoStop30" />
+                    </Picker>
+                </Form>
 
-                    <Icon style={{ marginLeft: 20 }} name='help' onPress={() => Toast.show({
-                        text: 'Automatic Timer Stop will turn off gunshot recording at the specified time just in case you can\'t push stop!',
-                        position: 'bottom',
-                        buttonText: 'Awesome',
-                        duration: 10000,
-                    })} />
+                <Icon style={{ marginLeft: 20 }} name='help' onPress={() => Toast.show({
+                    text: 'Automatic Timer Stop will turn off gunshot recording at the specified time just in case you can\'t push stop!',
+                    position: 'bottom',
+                    buttonText: 'Awesome',
+                    duration: 10000,
+                })} />
 
                 </View>
                 {/* </Content> */}
@@ -400,15 +347,11 @@ export default class TimerScreen extends Component {
                         bgColor="#fff"
                         updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
                         textStyle={{ fontSize: 20 }}
-                        onTimeElapsed={this.testButton}
+                        onTimeElapsed={this.startRecordingShots}
                     /> : undefined}
 
-
-                {/* SHOW RECORDING TEXT IF RECORDING */}
-                {
-                    this.state.recording ?
-                        <Text>RECORDING!!!</Text> : undefined
-                }
+                {!!this.state.recording && <Text>RECORDING!!!</Text>}
+                
 
                 {/* IF TIMER DELAY SHOW NEW COUNTDOWN CLOCK THEN START RECORDING */}
                 {
