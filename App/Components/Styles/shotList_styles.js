@@ -5,21 +5,4 @@ export default StyleSheet.create({
     ...ApplicationStyles.screen,
 
 
-    container: {
-        marginTop: 60,
-        // marginVertical: Metrics.baseMargin,
-        // flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    timeText: {
-        color: '#999999',
-        fontSize: 20,
-    },
-    dateText: {
-        color: '#999999',
-        fontSize: 40,
-    }
-
 })

@@ -39,7 +39,7 @@ export default class ShotList extends Component {
         const stagingPool = []
         return (
             <ScrollView
-                ref={listView => { this.listView = listView; }}
+               
             >
 
 
@@ -53,7 +53,7 @@ export default class ShotList extends Component {
 
                         { Number.isNaN(difference) ? difference = 'None' : difference = difference.toFixed(3) }
 
-                        this.listView.scrollToEnd()
+                        // this.listView.scrollToEnd()
 
                         let concatedObject = { shotTime: ele.toFixed(3), shotDifference: difference }
 
@@ -62,7 +62,7 @@ export default class ShotList extends Component {
 
                         // this.setState({ completeTimeObject: [...this.state.completeTimeObject, [concatedObject]] })
 
-                        return <ListItem style={styles.timeText}>
+                        return <ListItem style={styles.timeText} key={index}>
                             <Text>{"Shot " + (index + 1) + " @ " + ele.toFixed(3) + "."}</Text>
                             <Text>{" Difference " + difference}</Text>
                         </ListItem>
@@ -77,5 +77,3 @@ export default class ShotList extends Component {
         );
     }
 }
-
-
