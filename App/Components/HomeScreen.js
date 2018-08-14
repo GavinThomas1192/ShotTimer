@@ -73,6 +73,7 @@ export default class HomeScreen extends Component {
                             <Icon name='settings' />
                         </Button>
                         <Menu
+                            
                             ref={this.setMenuRef}
                             style={{ alignSelf: 'flex-end' }}
                         >

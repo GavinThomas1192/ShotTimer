@@ -7,17 +7,17 @@
     "test": "jest"
   },
   "dependencies": {
-    "moment": "^2.20.1",
-    "native-base": "^2.3.6",
+    "moment": "^2.22.2",
+    "native-base": "^2.7.2",
     "react": "16.0.0",
     "react-native": "0.51.0",
     "react-native-audio": "^3.5.1",
     "react-native-countdown-circle": "^3.0.0",
     "react-native-keep-awake": "^2.0.6",
-    "react-native-material-menu": "^0.2.5",
-    "react-native-sound": "^0.10.5",
+    "react-native-material-menu": "^0.2.7",
+    "react-native-sound": "^0.10.9",
     "react-native-stopwatch-timer": "0.0.20",
-    "react-navigation": "^1.0.3"
+    "react-navigation": "^1.5.12"
   },
   "devDependencies": {
     "babel-jest": "22.0.4",

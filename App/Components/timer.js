@@ -72,7 +72,7 @@ export default class TimerScreen extends Component {
 
         // Load the sound file 'whoosh.mp3' from the app bundle
         // See notes below about preloading sounds within initialization code below.
-        let GetAirHornSound = new Sound('sport_air_horn_002.mp3', Sound.MAIN_BUNDLE, (error) => {
+        let GetAirHornSound = new Sound('sport_air_horn_blast.mp3', Sound.MAIN_BUNDLE, (error) => {
             if (error) {
                 console.log('failed to load the sound', error);
                 return;
@@ -82,7 +82,7 @@ export default class TimerScreen extends Component {
             this.setState({ airHornSound: GetAirHornSound })
         });
 
-        let GetCountDown = new Sound('count_down.mp3', Sound.MAIN_BUNDLE, (error) => {
+        let GetCountDown = new Sound('ticking_countdown.mp3', Sound.MAIN_BUNDLE, (error) => {
             if (error) {
                 console.log('failed to load the sound', error);
                 return;
@@ -229,8 +229,11 @@ export default class TimerScreen extends Component {
 
     saveResultList = () => {
         let currentTime = new Date().toLocaleString()
+        console.log(currentTime)
+        const saveData = {'Date': currentTime, 'ShotRecord': stagingPool}
+
         try {
-            AsyncStorage.setItem(currentTime.toString(), JSON.stringify(stagingPool)).then(() => {
+            AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(saveData)).then(() => {
 
                 console.log('saved data!', JSON.stringify(stagingPool), 'to this date', currentTime)
                 this.setState({ toggleDownloadShotTimes: false }, function () {
