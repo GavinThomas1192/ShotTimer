@@ -3,13 +3,16 @@ import {
     View,
     Text,
     AsyncStorage,
-    StyleSheet
+    StyleSheet,
+    ScrollView,
+    List,
+    ListItem
 } from "react-native";
 import ShotList from './shotList'
 import Sound from 'react-native-sound'
 import CountdownCircle from 'react-native-countdown-circle'
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-import { Button, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer, Toast } from 'native-base'
+import { Button, Header, Left, Right, Icon, Body, Title, Form, Picker, Toast } from 'native-base'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
 
@@ -17,27 +20,22 @@ const stagingPool = [];
 
 export default class TimerScreen extends Component {
   constructor(props) {
-
-      super(props);
-      this.state = {
-          totalDuration: 90000,
-          timerReset: false,
-          tickTimes: [],
-          newTicktimes: [],
-          timerDelay: 'timerDelay1',
-          autoStop: 'autoStop0',
-          toggleCountdown: false,
-          toggleAutoStop: false,
-          airHornSound: '',
-          countDown: '',
-          counter: 0,
-          recording: false,
-          toggleNavMenu: false,
-          showToast: false,
-          toggleDownloadShotTimes: true,
-          completeTimeObject: '',
-      };
-      this.stopRecording = this.stopRecording.bind(this)
+    super(props);
+    this.state = {
+      timerReset: false,
+      tickTimes: [],
+      newTickTimes: [],
+      timerDelay: 'timerDelay1',
+      autoStop: 'autoStop0',
+      toggleCountdown: false,
+      toggleAutoStop: false,
+      airHornSound: '',
+      countDown: '',
+      recording: false,
+      toggleDownloadShotTimes: true,
+      combinedShotList: null,
+    };
+    this.stopRecording = this.stopRecording.bind(this)
   }
 
   async componentDidMount() {
@@ -106,10 +104,10 @@ export default class TimerScreen extends Component {
     this.setState({ recording: true })
     let decibels = Math.floor(data.currentMetering);
     !!highestSoundCalibration && decibels > highestSoundCalibration &&
-      this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime]})
+      this.setState({ newTickTimes: [...this.state.newTickTimes, data.currentTime]})
   
     !highestSoundCalibration && decibels > 0 &&
-      this.setState({ newTicktimes: [...this.state.newTicktimes, data.currentTime]})
+      this.setState({ newTickTimes: [...this.state.newTickTimes, data.currentTime]})
     };
   }
 
@@ -167,59 +165,57 @@ export default class TimerScreen extends Component {
   }
 
   saveResultList = () => {
-      let currentTime = new Date().toLocaleString()
-      const saveData = {'Date': currentTime, 'ShotRecord': stagingPool}
+    let currentTime = new Date().toLocaleString()
+    const saveData = {'Date': currentTime, 'ShotRecord': stagingPool}
 
-      try {
-          AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(saveData)).then(() => {
-
-              this.setState({ toggleDownloadShotTimes: false }, function () {
-
-                  Toast.show({
-                      supportedOrientations: ['portrait', 'landscape'],
-                      text: `Saved Shot Data!`,
-                      position: 'bottom',
-                      buttonText: 'Dismiss',
-                      duration: 5000,
-                  });
-              })
-          })
-
-      } catch (error) {
+    try {
+      AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(saveData)).then(() => {
+        this.setState({ toggleDownloadShotTimes: false }, function () {
           Toast.show({
-              supportedOrientations: ['portrait', 'landscape'],
-              text: `Whoops! I wasn't able to save your data.`,
-              position: 'bottom',
-              buttonText: 'Dismiss',
-              duration: 5000,
+            supportedOrientations: ['portrait', 'landscape'],
+            text: `Saved Shot Data!`,
+            position: 'bottom',
+            buttonText: 'Dismiss',
+            duration: 5000,
           });
-      }
+        })
+      })
+
+    } catch (error) {
+        Toast.show({
+          supportedOrientations: ['portrait', 'landscape'],
+          text: `Whoops! I wasn't able to save your data.`,
+          position: 'bottom',
+          buttonText: 'Dismiss',
+          duration: 5000,
+        });
+    }
   }
 
   renderHeader() {
     return (
       <Header style={{ backgroundColor: 'black' }}>
-          <Left>
-              <Button transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                  <Icon name='home' />
-              </Button>
-          </Left>
-          <Body>
-              <Title style={{ color: 'white' }}>Shot Timer</Title>
-          </Body>
-          <Right>
-              <Button transparent onPress={this.showMenu}>
-                  <Icon name='settings' />
-              </Button>
-              <Menu
-                  ref={this.setMenuRef}
-                  style={{ alignSelf: 'flex-end' }}
-              >
-                  {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
-                  <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
-                  <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
-              </Menu>
-          </Right>
+        <Left>
+          <Button transparent onPress={() => this.props.navigation.navigate('HomeScreen')}>
+            <Icon name='home' />
+          </Button>
+        </Left>
+        <Body>
+          <Title style={{ color: 'white' }}>Shot Timer</Title>
+        </Body>
+        <Right>
+          <Button transparent onPress={this.showMenu}>
+            <Icon name='settings' />
+          </Button>
+          <Menu
+            ref={this.setMenuRef}
+            style={{ alignSelf: 'flex-end' }}
+          >
+            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+            <MenuItem onPress={this.onHistoryPress}>Shot History</MenuItem>
+            <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
+          </Menu>
+        </Right>
       </Header>
     )
   }
@@ -306,94 +302,97 @@ export default class TimerScreen extends Component {
   }
 
   renderResultsList() {
-    // return (
-    //   <ScrollView>
-    //   <Text style={styles.timeText}> Result List!</Text>
-    //   <List style={{ flex: 0 }}>
-    //     {this.props.tickTimes.map((ele, index) => {
-    //         // let diff/erence;
-    //         let difference = (ele - this.props.tickTimes[(index - 1)])
-    //         { Number.isNaN(difference) ? difference = 'None' : difference = difference.toFixed(3) }
-    //         // this.listView.scrollToEnd()
-    //         let concatedObject = { shotTime: ele.toFixed(3), shotDifference: difference }
-    //         stagingPool.push(concatedObject)
-    //         this.props.updateHome(stagingPool)
-    //         // this.setState({ completeTimeObject: [...this.state.completeTimeObject, [concatedObject]] })
-    //         return <ListItem style={styles.timeText} key={index}>
-    //             <Text>{"Shot " + (index + 1) + " @ " + ele.toFixed(3) + "."}</Text>
-    //             <Text>{" Difference " + difference}</Text>
-    //         </ListItem>
-    //     })}
-    //   </List>
-    // </ScrollView >
-  // );
+    const {newTickTimes} = this.state;
+    return (
+      <ScrollView>
+      <Text style={styles.timeText}> Result List!</Text>
+      <List style={{ flex: 0 }}>
+        {newTickTimes.length > 0 && newTickTimes.map((times, index) => {
+          let difference = (times - this.props.tickTimes[(index - 1)])
+          Number.isNaN(difference) ? difference = 'None' : difference = difference.toFixed(3)
+          let combinedShot = { shotTime: times.toFixed(3), shotDifference: difference }
+          this.setState({combinedShotList: [...this.state.combinedShotList, combinedShot]})
+          return (
+            <ListItem style={styles.timeText} key={index}>
+              <Text>{"Shot " + (index + 1) + " @ " + times.toFixed(3) + "."}</Text>
+              <Text>{" Difference " + difference}</Text>
+            </ListItem>
+          )
+        })}
+      </List>
+    </ScrollView >
+  );
 }
 
   render() {
-      const {
-        timerDelay, 
-        autoStop, 
-        toggleAutoStop, 
-        toggleCountdown, 
-        recording, 
-        toggleDownloadShotTimes, 
-        newTicktimes
-      } = this.state;
-      return (
-          <View style={{
-              marginTop: 20,
-              flex: 1,
-              position: 'relative'
-          }}>
-          {this.renderHeader()}
-          <View style={{ flexDirection: 'row' }}>
-            {this.renderTimerDelay()}
-            {this.renderAutomaticTimerStop()}
-          </View>
-
-          <View style={{ flexDirection: 'row' }}>
-            {!toggleCountdown && !recording &&
-              <Button style={{ flex: 2, margin: 10 }} block onPress={this.startButton}>
-                <Text>Start</Text>
-              </Button>
-            }       
-            <Button style={{ flex: 2, margin: 10 }} block onPress={this.stopRecording}>
-                <Text>Stop</Text>
-            </Button>
-          </View>
-
-          {/* SHOW COUNTDOWN OUTSIDE THE ROW VIEW ABOVE */}
-          {!!toggleCountdown &&
-            <CountdownCircle
-              seconds={timerDelay.replace(/\D/g, '') == 100 ? Math.floor(Math.random() * Math.floor(30)) : timerDelay.replace(/\D/g, '')}
-              radius={30}
-              borderWidth={8}
-              color="#ff003f"
-              bgColor="#fff"
-              updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
-              textStyle={{ fontSize: 20 }}
-              onTimeElapsed={this.startRecordingShots}
-            /> 
-          }
-
-          {!!recording ? <Text>RECORDING!!!</Text> : <Text>NOT RECORDING!!!</Text>}
-          
-          {/* IF TIMER DELAY SHOW NEW COUNTDOWN CLOCK THEN START RECORDING */}
-              {toggleAutoStop && autoStop.replace(/\D/g, '') > 0 &&
-                this.renderAutomaticStopCountdown() }
-
-          {stagingPool.length > 0 && !recording && toggleDownloadShotTimes &&
-            <Button style={{ margin: 20 }} block onPress={this.saveResultList}>
-                <Text>Save Record</Text>
-            </Button> 
-          }
-          <ShotList updateHome={this.updateHome} tickTimes={newTicktimes} />
+    const {
+      timerDelay, 
+      autoStop, 
+      toggleAutoStop, 
+      toggleCountdown, 
+      recording, 
+      toggleDownloadShotTimes, 
+      newTickTimes
+    } = this.state;
+    return (
+        <View style={{
+            marginTop: 20,
+            flex: 1,
+            position: 'relative'
+        }}>
+        {this.renderHeader()}
+        <View style={{ flexDirection: 'row' }}>
+          {this.renderTimerDelay()}
+          {this.renderAutomaticTimerStop()}
         </View>
-      );
+
+        <View style={{ flexDirection: 'row' }}>
+          {!toggleCountdown && !recording &&
+            <Button style={{ flex: 2, margin: 10 }} block onPress={this.startButton}>
+              <Text>Start</Text>
+            </Button>
+          }       
+          <Button style={{ flex: 2, margin: 10 }} block onPress={this.stopRecording}>
+              <Text>Stop</Text>
+          </Button>
+        </View>
+
+        {/* SHOW COUNTDOWN OUTSIDE THE ROW VIEW ABOVE */}
+        {!!toggleCountdown &&
+          <CountdownCircle
+            seconds={timerDelay.replace(/\D/g, '') == 100 ? Math.floor(Math.random() * Math.floor(30)) : timerDelay.replace(/\D/g, '')}
+            radius={30}
+            borderWidth={8}
+            color="#ff003f"
+            bgColor="#fff"
+            updateText={(elapsedSecs, totalSecs) => this.secondTick(elapsedSecs, totalSecs)}
+            textStyle={{ fontSize: 20 }}
+            onTimeElapsed={this.startRecordingShots}
+          /> 
+        }
+
+        {!!recording ? <Text>RECORDING!!!</Text> : <Text>NOT RECORDING!!!</Text>}
+        
+        {/* IF TIMER DELAY SHOW NEW COUNTDOWN CLOCK THEN START RECORDING */}
+            {toggleAutoStop && autoStop.replace(/\D/g, '') > 0 &&
+              this.renderAutomaticStopCountdown() }
+
+        {stagingPool.length > 0 && !recording && toggleDownloadShotTimes &&
+          <Button style={{ margin: 20 }} block onPress={this.saveResultList}>
+              <Text>Save Record</Text>
+          </Button> 
+        }
+        {/* <ShotList updateHome={this.updateHome} tickTimes={newTickTimes} /> */}
+        {newTickTimes.length > 0 && this.renderResultsList()}
+      </View>
+    );
   }
 }
 
 
 const styles = StyleSheet.create({
-  
+  timeText: {
+    color: 'black',
+    fontSize: 20,
+  },
 });
