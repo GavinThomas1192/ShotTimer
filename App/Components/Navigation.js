@@ -9,27 +9,12 @@ import CalibrateMicrophoneScreen from './CalibrateMicrophoneScreen'
 import HistoryScreen from './HistoryScreen'
 const Nav = StackNavigator({
     TimerScreen: {
-        screen: TimerScreen,
-        // navigationOptions: {
-        //     headerStyle: {
-        //         backgroundColor: 'blue',
-        //     },
-        //     headerTitleStyle: {
-        //         color: 'white',
-        //     },
-        //     headerBackTitleStyle: {
-        //         color: 'white',
-        //     },
-        //     headerTintColor: 'white',
-        // }
+        screen: TimerScreen
     },
     RandomDrillScreen: { screen: RandomDrillScreen },
     HomeScreen: { screen: HomeScreen },
     CalibrateMicrophoneScreen: { screen: CalibrateMicrophoneScreen },
     HistoryScreen: { screen: HistoryScreen },
-    // RandomComponent: { screen: RandomComponent },
-
-
 },
     {
         initialRouteName: 'HomeScreen',
