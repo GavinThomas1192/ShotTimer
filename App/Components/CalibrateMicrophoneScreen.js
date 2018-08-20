@@ -96,7 +96,7 @@ export default class CalibrateMicrophoneScreen extends Component {
             ref={this.setMenuRef}
             style={{ alignSelf: 'flex-end' }}
           >
-            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+            <MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>
             <MenuItem onPress={() => this.onShotTimerPress(this.props.navigation)}>Shot Timer</MenuItem>
             <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
           </Menu>

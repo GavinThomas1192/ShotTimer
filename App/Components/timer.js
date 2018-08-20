@@ -5,24 +5,20 @@ import {
   AsyncStorage,
   StyleSheet,
   ScrollView,
-  List,
-  ListItem
 } from "react-native";
 import ShotList from './shotList'
 import Sound from 'react-native-sound'
 import CountdownCircle from 'react-native-countdown-circle'
-import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-import { Button, Header, Left, Right, Icon, Body, Title, Form, Picker, Toast } from 'native-base'
+import Menu, { MenuItem } from 'react-native-material-menu';
+import { Button, Header, Left, Right, Icon, Body, Title, Form, Picker, Toast, List, ListItem } from 'native-base'
 import { AudioRecorder, AudioUtils } from 'react-native-audio';
 
 
-const stagingPool = [];
 
 export default class TimerScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      timerReset: false,
       tickTimes: [],
       newTickTimes: [],
       timerDelay: 'timerDelay1',
@@ -39,6 +35,7 @@ export default class TimerScreen extends Component {
   }
 
   async componentDidMount() {
+    // AsyncStorage.removeItem('SHOT-TIMER-RECORDS');
     const highestSoundCalibration = await AsyncStorage.getItem('SHOT_TIMER_CALIBRATION')
     this.setState({
       highestSoundCalibration: JSON.parse(highestSoundCalibration)
@@ -164,17 +161,15 @@ export default class TimerScreen extends Component {
     this.hideMenu()
   }
 
-  updateHome = (timeObject) => {
-    console.log(timeObject)
-    stagingPool = timeObject
-  }
-
-  saveResultList = () => {
+  saveResultList = async () => {
     let currentTime = new Date().toLocaleString()
-    const saveData = { 'Date': currentTime, 'ShotRecord': stagingPool }
+    const saveData = [{ 'Date': currentTime, 'ShotRecord': this.state.combinedShotList }]
 
     try {
-      AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(saveData)).then(() => {
+      const previousShotRecords = await AsyncStorage.getItem('SHOT-TIMER-RECORDS');
+      const mergedData = !!previousShotRecords && saveData.concat(JSON.parse(previousShotRecords))
+      const handleFirstOrMany = !!mergedData ? mergedData : saveData
+      AsyncStorage.setItem('SHOT-TIMER-RECORDS', JSON.stringify(handleFirstOrMany)).then(() => {
         this.setState({ toggleDownloadShotTimes: false }, function () {
           Toast.show({
             supportedOrientations: ['portrait', 'landscape'],
@@ -309,30 +304,27 @@ export default class TimerScreen extends Component {
   constructResult() {
     const { newTickTimes, tickTimes } = this.state;
     newTickTimes.map((times, index) => {
-      let difference = (times - tickTimes[(index - 1)])
-      console.log(difference)
+      let difference = (times - newTickTimes[(index - 1)])
       Number.isNaN(difference) ? difference = 'None' : difference = difference.toFixed(3)
       let combinedShot = { shotTime: times.toFixed(3), shotDifference: difference }
-      console.log(combinedShot)
       this.setState({ combinedShotList: [...this.state.combinedShotList, combinedShot] })
-      console.log(this.state)
     })
   }
 
   renderResultsList() {
     const { combinedShotList } = this.state;
-    console.log(this.state)
     return (
       <ScrollView>
         <Text style={styles.timeText}> Result List!</Text>
         <List style={{ flex: 0 }}>
           {combinedShotList.length > 0 && combinedShotList.map((shots, index) => {
-            console.log(shots)
             return (
-              !!shots && <ListItem style={styles.timeText} key={index}>
-                <Text>{"Shot " + (index + 1) + " @ " + shots.shotTime + "."}</Text>
-                <Text>{" Difference " + shots.shotDifference}</Text>
-              </ListItem>
+              !!shots && (
+                <ListItem style={styles.timeText} key={index}>
+                  <Text>{"Shot " + (index + 1) + " @ " + shots.shotTime + "."}</Text>
+                  <Text>{" Difference " + shots.shotDifference}</Text>
+                </ListItem>
+              )
             )
           })}
         </List>
@@ -348,7 +340,6 @@ export default class TimerScreen extends Component {
       toggleCountdown,
       recording,
       toggleDownloadShotTimes,
-      newTickTimes,
       combinedShotList
     } = this.state;
     return (
@@ -394,7 +385,7 @@ export default class TimerScreen extends Component {
         {toggleAutoStop && autoStop.replace(/\D/g, '') > 0 &&
           this.renderAutomaticStopCountdown()}
 
-        {stagingPool.length > 0 && !recording && toggleDownloadShotTimes &&
+        {combinedShotList.length > 0 && !recording && toggleDownloadShotTimes &&
           <Button style={{ margin: 20 }} block onPress={this.saveResultList}>
             <Text>Save Record</Text>
           </Button>

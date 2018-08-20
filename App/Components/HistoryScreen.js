@@ -33,7 +33,7 @@ export default class HistoryScreen extends Component {
 
   async componentDidMount() {
     const previousRecords = await AsyncStorage.getItem('SHOT-TIMER-RECORDS')
-    !!previousRecords && this.setState({ previousRecords: [...this.state.previousRecords, JSON.parse(previousRecords)] })
+    !!previousRecords && this.setState({ previousRecords: JSON.parse(previousRecords) })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -77,81 +77,74 @@ export default class HistoryScreen extends Component {
   handleShowtimes = (ele) => {
     this.setState({ toggleShowSpecificTimes: !this.state.toggleShowSpecificTimes, currentList: ele, }, function () {
     })
+  }
 
+  renderHeader() {
+    return (
+      <Header style={{ backgroundColor: 'black' }}>
+        <Left>
+          <Button transparent onPress={this.handleBackArrow}>
+            <Icon name='home' />
+          </Button>
+        </Left>
+        <Body>
+          <Title style={{ color: 'white' }}>Shots History</Title>
+        </Body>
+        <Right>
+          <Button transparent onPress={this.showMenu}>
+            <Icon name='settings' />
+          </Button>
+          <Menu
+            ref={this.setMenuRef}
+            style={{ alignSelf: 'flex-end' }}
+          >
+            {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
+            <MenuItem onPress={() => this.onShotTimerPress(this.props.navigation)}>Shot Timer</MenuItem>
+            <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
+          </Menu>
+        </Right>
+      </Header>
+    )
+  }
+
+  renderHistoryCard() {
+    const { previousRecords } = this.state;
+    return (
+      <CardItem>
+        <Body>
+          {!!previousRecords && previousRecords.length > 0 &&
+            previousRecords.map((ele, index) => {
+              return <CardItem key={index}>
+                <Text>{ele.Date}</Text>
+                {ele.ShotRecord.map((shotRecord, index) => {
+                  return (
+                    <CardItem key={index}>
+                      <Text>Time: {shotRecord.shotTime}</Text>
+                      <Text>Differnce: {shotRecord.shotDifference}</Text>
+                    </CardItem>
+                  )
+                })}
+                <Right>
+                  <Icon onPress={() => this.handleShowtimes(ele)} name="arrow-forward" />
+                </Right>
+              </CardItem>
+            })
+          }
+        </Body>
+      </CardItem>
+    )
   }
 
   render() {
-    const { previousRecords } = this.state
     return (
       <ScrollView style={{ marginTop: 20 }}>
-        <Header style={{ backgroundColor: 'black' }}>
-          <Left>
-            <Button transparent onPress={this.handleBackArrow}>
-              <Icon name='home' />
-            </Button>
-          </Left>
-          <Body>
-            <Title style={{ color: 'white' }}>Shots History</Title>
-          </Body>
-          <Right>
-            <Button transparent onPress={this.showMenu}>
-              <Icon name='settings' />
-            </Button>
-            <Menu
-              ref={this.setMenuRef}
-              style={{ alignSelf: 'flex-end' }}
-            >
-              {<MenuItem onPress={() => this.onDrillScreenPress(this.props.navigation)}>Random Fire Excersize</MenuItem>}
-              <MenuItem onPress={() => this.onShotTimerPress(this.props.navigation)}>Shot Timer</MenuItem>
-              <MenuItem onPress={this.onCalibratePress}>Calibrate Sound</MenuItem>
-            </Menu>
-          </Right>
-
-        </Header>
-        <Text>Hello from history</Text>
-
+        {this.renderHeader()}
         <Card>
           <CardItem header>
             <Text>Welcome to your history</Text>
           </CardItem>
-          <CardItem>
-            <Body>
-              <Text style={{ marginBottom: 10 }}>
-                In this app you can utilize a basic Shot Timer, to track your shot times, time between shots, and total duration. There are several settings within like timer delay and auto stop to make your life easier!
-                                </Text>
-              <Text>
-                The Random Drill Excersize will buzz at random intervals allowing you to practice your holster to fire times.
-                                </Text>
-            </Body>
-          </CardItem>
-          <CardItem>
-            <Body>
-              {!!previousRecords && previousRecords.length > 0 &&
-                previousRecords.map((ele, index) => {
-                  return <CardItem key={index}>
-                    <Text>{ele.Date}</Text>
-                    {ele.ShotRecord.map((shotRecord, index) => {
-                      return (
-                        <CardItem key={index}>
-                          <Text>Time: {shotRecord.shotTime}</Text>
-                          <Text>Differnce: {shotRecord.shotDifference}</Text>
-                        </CardItem>
-                      )
-                    })}
-                    <Right>
-                      <Icon onPress={() => this.handleShowtimes(ele)} name="arrow-forward" />
-                    </Right>
-                  </CardItem>
-                })
-              }
-
-            </Body>
-          </CardItem>
-          <CardItem footer>
-            <Text>Gavin</Text>
-          </CardItem>
+          {this.renderHistoryCard()}
         </Card>
-
       </ScrollView >
     );
   }
