@@ -8,8 +8,7 @@ import {
   AsyncStorage,
   ScrollView,
 } from "react-native";
-import { Button, Container, Content, Card, CardItem, List, ListItem, Header, Left, Right, Icon, Body, Title, CheckBox, Form, Picker, Drawer } from 'native-base'
-import styles from './Styles/shotList_styles'
+import { Button, Card, CardItem, Header, Left, Right, Icon, Body, Title } from 'native-base'
 
 
 
